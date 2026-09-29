@@ -1,6 +1,74 @@
 <x-filament-panels::page>
-    {{-- CSS Khusus Printer Thermal 58mm / 80mm --}}
+    {{-- Scoped Stylesheet untuk Kasir Cepat (POS) & Printer Thermal --}}
     <style>
+        /* Reset & Ukuran SVG Ikon */
+        .pos-icon-xs { width: 0.875rem !important; height: 0.875rem !important; min-width: 0.875rem !important; max-width: 0.875rem !important; flex-shrink: 0; }
+        .pos-icon-sm { width: 1rem !important; height: 1rem !important; min-width: 1rem !important; max-width: 1rem !important; flex-shrink: 0; }
+        .pos-icon { width: 1.25rem !important; height: 1.25rem !important; min-width: 1.25rem !important; max-width: 1.25rem !important; flex-shrink: 0; }
+        .pos-icon-lg { width: 1.75rem !important; height: 1.75rem !important; min-width: 1.75rem !important; max-width: 1.75rem !important; flex-shrink: 0; }
+        .pos-icon-xl { width: 2.5rem !important; height: 2.5rem !important; min-width: 2.5rem !important; max-width: 2.5rem !important; flex-shrink: 0; }
+
+        /* Layout Grid Utama POS */
+        .pos-layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            width: 100%;
+            margin-top: -0.5rem;
+        }
+        @media (min-width: 1024px) {
+            .pos-layout-grid {
+                grid-template-columns: minmax(0, 1.85fr) minmax(360px, 1.15fr);
+                align-items: start;
+            }
+        }
+
+        /* Grid Katalog Menu */
+        .pos-grid-menu {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.875rem;
+        }
+        @media (min-width: 640px) {
+            .pos-grid-menu {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+        @media (min-width: 1280px) {
+            .pos-grid-menu {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        /* Sticky Cart Container */
+        .pos-cart-panel {
+            position: sticky;
+            top: 1rem;
+            height: calc(100vh - 6.5rem);
+            max-height: calc(100vh - 6.5rem);
+            display: flex;
+            flex-direction: column;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        /* Scrollbar Halus */
+        .pos-scroll-custom::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .pos-scroll-custom::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .pos-scroll-custom::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 9999px;
+        }
+        .pos-scroll-custom::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.7);
+        }
+
+        /* Print Thermal 58mm / 80mm */
         @media print {
             body * {
                 visibility: hidden !important;
@@ -17,6 +85,7 @@
                 padding: 0 !important;
                 background: #ffffff !important;
                 color: #000000 !important;
+                z-index: 99999 !important;
             }
             @page {
                 size: 58mm auto;
@@ -32,15 +101,16 @@
         @endif
     </div>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 -mt-4 print:hidden">
-        {{-- ================= SISI KIRI: KATALOG MENU & PENCARIAN (65% / 8 COLS) ================= --}}
-        <div class="lg:col-span-7 xl:col-span-8 space-y-4">
+    {{-- ================= KONTEN UTAMA POS ================= --}}
+    <div class="pos-layout-grid print:hidden">
+        {{-- ================= SISI KIRI: KATALOG MENU & PENCARIAN ================= --}}
+        <div class="space-y-3.5">
             {{-- Toolbar: Kategori & Search --}}
-            <div class="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-800 space-y-3">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-3.5 shadow-xs border border-gray-200 dark:border-gray-800 space-y-3">
                 {{-- Search Bar --}}
-                <div class="relative">
+                <div class="relative flex items-center">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
@@ -48,22 +118,22 @@
                         id="pos-search-input"
                         type="text"
                         wire:model.live.debounce.300ms="search"
-                        placeholder="Ketik nama menu makanan atau minuman (Cari cepat / F2)..."
-                        class="w-full pl-10 pr-12 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:text-gray-100 placeholder-gray-400"
+                        placeholder="Ketik nama menu makanan / minuman (Cari cepat / F2)..."
+                        class="w-full pl-10 pr-12 py-2.5 bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 dark:text-gray-100 placeholder-gray-400 transition"
                     />
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-bold bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded border border-gray-300 dark:border-gray-600 shadow-xs">
+                        <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded border border-gray-300 dark:border-gray-600 shadow-xs">
                             F2
                         </kbd>
                     </div>
                 </div>
 
                 {{-- Category Filter Tabs --}}
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 pos-scroll-custom">
                     <button
                         type="button"
                         wire:click="selectCategory(null)"
-                        class="px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 {{ is_null($selectedCategoryId) ? 'bg-primary-600 text-white shadow-sm ring-2 ring-primary-500/20' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300' }}"
+                        class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer {{ is_null($selectedCategoryId) ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-500/30' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300' }}"
                     >
                         Semua Kategori
                     </button>
@@ -71,7 +141,7 @@
                         <button
                             type="button"
                             wire:click="selectCategory({{ $category->id }})"
-                            class="px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 {{ $selectedCategoryId === $category->id ? 'bg-primary-600 text-white shadow-sm ring-2 ring-primary-500/20' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300' }}"
+                            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer {{ $selectedCategoryId === $category->id ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-500/30' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300' }}"
                         >
                             {{ $category->name }}
                         </button>
@@ -80,7 +150,7 @@
             </div>
 
             {{-- Grid Menu Produk --}}
-            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5">
+            <div class="pos-grid-menu">
                 @forelse ($this->products as $product)
                     @php
                         $isOutOfStock = $product->stock <= 0;
@@ -91,14 +161,14 @@
                         @if (! $isOutOfStock)
                             wire:click="addToCart({{ $product->id }})"
                         @endif
-                        class="group relative bg-white dark:bg-gray-900 rounded-xl p-3.5 border transition-all duration-200 flex flex-col justify-between select-none
+                        class="group relative bg-white dark:bg-gray-900 rounded-2xl p-3 border transition-all duration-150 flex flex-col justify-between select-none
                             {{ $isOutOfStock 
-                                ? 'opacity-60 bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 cursor-not-allowed' 
-                                : 'hover:border-primary-500 hover:shadow-md cursor-pointer border-gray-200 dark:border-gray-800 active:scale-[0.98]' }}
-                            {{ $inCart ? 'ring-2 ring-primary-500 border-primary-500 bg-primary-50/20 dark:bg-primary-950/20' : '' }}"
+                                ? 'opacity-55 bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 cursor-not-allowed' 
+                                : 'hover:border-amber-500 hover:shadow-md cursor-pointer border-gray-200 dark:border-gray-800 active:scale-[0.98]' }}
+                            {{ $inCart ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-50/15 dark:bg-amber-950/20' : '' }}"
                     >
                         {{-- Foto atau Placeholder --}}
-                        <div class="w-full h-28 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden mb-2.5 relative flex items-center justify-center">
+                        <div class="w-full h-24 sm:h-28 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden mb-2 relative flex items-center justify-center">
                             @if ($product->image_path)
                                 <img
                                     src="{{ asset('storage/' . $product->image_path) }}"
@@ -106,8 +176,8 @@
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                                 />
                             @else
-                                <div class="text-gray-400 dark:text-gray-600 flex flex-col items-center">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="text-gray-400 dark:text-gray-600 flex flex-col items-center justify-center">
+                                    <svg class="pos-icon-lg text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.75rem; height: 1.75rem;">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                     </svg>
                                 </div>
@@ -115,15 +185,15 @@
 
                             {{-- Badge Kuantitas di Keranjang --}}
                             @if ($inCart)
-                                <div class="absolute top-1.5 right-1.5 bg-primary-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow">
+                                <div class="absolute top-1.5 right-1.5 bg-amber-600 text-white text-[11px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-900">
                                     {{ $cartQty }}
                                 </div>
                             @endif
 
                             {{-- Badge Habis --}}
                             @if ($isOutOfStock)
-                                <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">
-                                    <span class="bg-red-600 text-white text-xs font-black px-2.5 py-1 rounded-md tracking-wider">
+                                <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+                                    <span class="bg-red-600 text-white text-[11px] font-black px-2 py-0.5 rounded-md tracking-wider shadow">
                                         HABIS
                                     </span>
                                 </div>
@@ -133,28 +203,28 @@
                         {{-- Info Produk --}}
                         <div class="space-y-1">
                             <div class="flex items-center justify-between gap-1">
-                                <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 truncate">
+                                <span class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 truncate">
                                     {{ $product->category?->name }}
                                 </span>
-                                <span class="text-[11px] font-semibold {{ $isOutOfStock ? 'text-red-500' : ($product->isLowStock() ? 'text-amber-500' : 'text-emerald-600') }}">
+                                <span class="text-[10px] font-bold {{ $isOutOfStock ? 'text-red-500' : ($product->isLowStock() ? 'text-amber-500' : 'text-emerald-600 dark:text-emerald-400') }}">
                                     Stok: {{ $product->stock }}
                                 </span>
                             </div>
 
-                            <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1 leading-snug">
+                            <h3 class="text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1 leading-tight">
                                 {{ $product->name }}
                             </h3>
 
-                            <div class="pt-1 flex items-center justify-between">
-                                <span class="text-sm font-black text-primary-600 dark:text-primary-400">
+                            <div class="pt-0.5 flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400">
                                     Rp {{ number_format((float) $product->selling_price, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-800">
-                        <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-900 rounded-2xl border border-dashed border-gray-300 dark:border-gray-800">
+                        <svg class="pos-icon-xl mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 2.5rem; height: 2.5rem; margin: 0 auto;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -165,20 +235,20 @@
             </div>
         </div>
 
-        {{-- ================= SISI KANAN: KERANJANG PESANAN (35% / 4 COLS) ================= --}}
-        <div class="lg:col-span-5 xl:col-span-4">
-            <div class="sticky top-20 bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col h-[calc(100vh-6.5rem)]">
+        {{-- ================= SISI KANAN: KERANJANG PESANAN ================= --}}
+        <div>
+            <div class="pos-cart-panel bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800">
                 {{-- Header Keranjang --}}
-                <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <div class="p-3.5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="pos-icon text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
-                        <h2 class="text-base font-bold text-gray-900 dark:text-gray-100">
+                        <h2 class="text-sm font-bold text-gray-900 dark:text-gray-100">
                             Ringkasan Pesanan
                         </h2>
                         @if ($this->totalItems > 0)
-                            <span class="bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300 text-xs font-bold px-2 py-0.5 rounded-full">
+                            <span class="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-full">
                                 {{ $this->totalItems }} item
                             </span>
                         @endif
@@ -188,88 +258,94 @@
                         <button
                             type="button"
                             wire:click="clearCart"
-                            wire:confirm="Yakin ingin mengosongkan keranjang pesanan?"
-                            class="text-xs text-red-500 hover:text-red-700 font-semibold transition cursor-pointer"
+                            wire:confirm="Kosongkan seluruh keranjang belanja?"
+                            class="text-[11px] font-bold text-red-500 hover:text-red-700 transition cursor-pointer"
                         >
                             Kosongkan
                         </button>
                     @endif
                 </div>
 
-                {{-- Daftar Item Keranjang (Scrollable) --}}
-                <div class="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-gray-100 dark:divide-gray-800">
+                {{-- Daftar Item Keranjang --}}
+                <div class="flex-1 overflow-y-auto p-3 space-y-2 pos-scroll-custom">
                     @forelse ($cart as $productId => $item)
-                        <div class="pt-3 first:pt-0 flex items-center justify-between gap-3">
-                            <div class="flex-1 min-w-0">
-                                <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
-                                    {{ $item['name'] }}
-                                </h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    @ Rp {{ number_format((float) $item['price'], 0, ',', '.') }}
-                                </p>
-                                <p class="text-xs font-bold text-primary-600 dark:text-primary-400 mt-0.5">
-                                    Subtotal: Rp {{ number_format((float) $item['subtotal'], 0, ',', '.') }}
-                                </p>
-                            </div>
-
-                            {{-- Kontrol Kuantitas & Hapus --}}
-                            <div class="flex items-center gap-1.5">
-                                <button
-                                    type="button"
-                                    wire:click="decrementQty({{ $productId }})"
-                                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center font-bold text-sm transition cursor-pointer"
-                                >
-                                    -
-                                </button>
-                                <span class="w-7 text-center font-bold text-sm text-gray-900 dark:text-gray-100">
-                                    {{ $item['qty'] }}
-                                </span>
-                                <button
-                                    type="button"
-                                    wire:click="incrementQty({{ $productId }})"
-                                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center font-bold text-sm transition cursor-pointer"
-                                >
-                                    +
-                                </button>
+                        <div class="p-2.5 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200/70 dark:border-gray-700/60 space-y-2">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
+                                        {{ $item['name'] }}
+                                    </h4>
+                                    <div class="text-[10px] text-gray-500 dark:text-gray-400">
+                                        Rp {{ number_format((float) $item['price'], 0, ',', '.') }} / porsi
+                                    </div>
+                                </div>
                                 <button
                                     type="button"
                                     wire:click="removeFromCart({{ $productId }})"
-                                    class="ml-1 text-gray-400 hover:text-red-500 p-1 rounded transition cursor-pointer"
-                                    title="Hapus Menu"
+                                    class="text-gray-400 hover:text-red-500 transition p-1 cursor-pointer"
+                                    title="Hapus menu"
                                 >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                 </button>
                             </div>
+
+                            <div class="flex items-center justify-between pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+                                {{-- Tombol +/- Kuantitas --}}
+                                <div class="flex items-center gap-1.5 bg-white dark:bg-gray-900 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700">
+                                    <button
+                                        type="button"
+                                        wire:click="decrementQty({{ $productId }})"
+                                        class="w-6 h-6 flex items-center justify-center rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold text-xs transition cursor-pointer"
+                                    >
+                                        -
+                                    </button>
+                                    <span class="w-7 text-center font-bold text-xs text-gray-900 dark:text-gray-100">
+                                        {{ $item['qty'] }}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        wire:click="incrementQty({{ $productId }})"
+                                        class="w-6 h-6 flex items-center justify-center rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold text-xs transition cursor-pointer"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+
+                                {{-- Subtotal Per Baris --}}
+                                <div class="font-black text-xs text-gray-900 dark:text-gray-100 font-mono">
+                                    Rp {{ number_format((float) $item['subtotal'], 0, ',', '.') }}
+                                </div>
+                            </div>
                         </div>
                     @empty
                         <div class="h-full flex flex-col items-center justify-center py-12 text-center text-gray-400 space-y-2">
-                            <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                <svg class="pos-icon-lg text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.75rem; height: 1.75rem;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                                 </svg>
                             </div>
-                            <p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                            <p class="text-xs font-bold text-gray-600 dark:text-gray-300">
                                 Keranjang Masih Kosong
                             </p>
-                            <p class="text-xs text-gray-400 max-w-[200px]">
-                                Klik item menu makanan / minuman di sisi kiri untuk mulai mencatat pesanan.
+                            <p class="text-[11px] text-gray-400 max-w-[200px]">
+                                Klik menu di sisi kiri untuk mulai mencatat pesanan.
                             </p>
                         </div>
                     @endforelse
                 </div>
 
                 {{-- Footer & Total Tagihan --}}
-                <div class="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-xl space-y-3">
+                <div class="p-3.5 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-2xl space-y-2.5">
                     <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                         <span>Total Kuantitas</span>
                         <span class="font-bold text-gray-900 dark:text-gray-200">{{ $this->totalItems }} Porsi</span>
                     </div>
 
                     <div class="flex items-baseline justify-between pt-1 border-t border-gray-200/60 dark:border-gray-800">
-                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Total Tagihan</span>
-                        <span class="text-2xl font-black text-primary-600 dark:text-primary-400 tracking-tight">
+                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300">Total Tagihan</span>
+                        <span class="text-xl font-black text-amber-600 dark:text-amber-400 tracking-tight font-mono">
                             Rp {{ number_format($this->totalAmount, 0, ',', '.') }}
                         </span>
                     </div>
@@ -279,15 +355,16 @@
                         type="button"
                         wire:click="openPaymentModal"
                         @if (count($cart) === 0) disabled @endif
-                        class="w-full py-3 px-4 rounded-xl font-bold text-sm text-white transition flex items-center justify-center gap-2 shadow-sm
+                        class="w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm text-white transition flex items-center justify-center gap-2 shadow-xs
                             {{ count($cart) > 0 
-                                ? 'bg-primary-600 hover:bg-primary-700 active:scale-[0.99] cursor-pointer' 
+                                ? 'bg-amber-600 hover:bg-amber-700 active:scale-[0.99] cursor-pointer' 
                                 : 'bg-gray-300 dark:bg-gray-800 text-gray-400 cursor-not-allowed' }}"
                     >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
-                        Proses Pembayaran (F9)
+                        <span>Proses Pembayaran</span>
+                        <kbd class="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white/20 text-white rounded">F9</kbd>
                     </button>
                 </div>
             </div>
@@ -297,173 +374,166 @@
     {{-- ================= MODAL PEMBAYARAN KASIR ================= --}}
     @if ($showPaymentModal)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-lg w-full shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                 {{-- Header Modal --}}
-                <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                     <div>
-                        <h3 class="text-lg font-black text-gray-900 dark:text-gray-100">
+                        <h3 class="text-base font-black text-gray-900 dark:text-gray-100">
                             Pembayaran Kasir
                         </h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Total Tagihan: <span class="font-bold text-primary-600 dark:text-primary-400">Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</span> ({{ $this->totalItems }} porsi)
+                            Total tagihan: <span class="font-bold text-amber-600 dark:text-amber-400">Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</span>
                         </p>
                     </div>
                     <button
                         type="button"
                         wire:click="closePaymentModal"
-                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition p-1.5 rounded-lg cursor-pointer"
                     >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
 
-                <div class="p-5 space-y-4">
-                    {{-- Pilihan Metode Pembayaran --}}
+                {{-- Body Modal --}}
+                <div class="p-4 space-y-4">
+                    {{-- Pilihan Metode Bayar --}}
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
-                            Pilih Metode Pembayaran
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                            Metode Pembayaran
                         </label>
                         <div class="grid grid-cols-3 gap-2">
                             <button
                                 type="button"
                                 wire:click="setPaymentMethod('cash')"
-                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
+                                class="py-2 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
                                     {{ $paymentMethod === 'cash' 
-                                        ? 'border-primary-600 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20' 
-                                        : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50' }}"
+                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs' 
+                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100' }}"
                             >
-                                💵 Tunai (Cash)
+                                <span>💵 Tunai</span>
+                                <span class="text-[10px] font-normal opacity-90">Cash</span>
                             </button>
+
                             <button
                                 type="button"
                                 wire:click="setPaymentMethod('qris')"
-                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
+                                class="py-2 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
                                     {{ $paymentMethod === 'qris' 
-                                        ? 'border-primary-600 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20' 
-                                        : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50' }}"
+                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs' 
+                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100' }}"
                             >
-                                📱 QRIS
+                                <span>📱 QRIS</span>
+                                <span class="text-[10px] font-normal opacity-90">Non-Tunai</span>
                             </button>
+
                             <button
                                 type="button"
                                 wire:click="setPaymentMethod('transfer')"
-                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
+                                class="py-2 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
                                     {{ $paymentMethod === 'transfer' 
-                                        ? 'border-primary-600 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20' 
-                                        : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50' }}"
+                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs' 
+                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100' }}"
                             >
-                                🏦 Transfer Bank
+                                <span>🏦 Transfer</span>
+                                <span class="text-[10px] font-normal opacity-90">Bank</span>
                             </button>
                         </div>
                     </div>
 
-                    {{-- Form Pembayaran Tunai --}}
+                    {{-- Form Input Tunai Diterima (Hanya Tampil Jika Metode Cash) --}}
                     @if ($paymentMethod === 'cash')
-                        <div class="space-y-3 pt-2">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                                    Uang Tunai Diterima (Rp)
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 font-bold text-sm">
-                                        Rp
-                                    </div>
-                                    <input
-                                        type="number"
-                                        wire:model.live="paidAmount"
-                                        placeholder="0"
-                                        class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-lg font-black text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    />
-                                </div>
-                                @error('paidAmount')
-                                    <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Tombol Shortcut Pecahan Tunai Cepat --}}
-                            <div>
-                                <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
-                                    Pecahan Cepat / Uang Pas:
-                                </label>
-                                <div class="grid grid-cols-5 gap-1.5">
-                                    <button
-                                        type="button"
-                                        wire:click="setPaidAmount(10000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
-                                    >
-                                        10rb
-                                    </button>
-                                    <button
-                                        type="button"
-                                        wire:click="setPaidAmount(20000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
-                                    >
-                                        20rb
-                                    </button>
-                                    <button
-                                        type="button"
-                                        wire:click="setPaidAmount(50000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
-                                    >
-                                        50rb
-                                    </button>
-                                    <button
-                                        type="button"
-                                        wire:click="setPaidAmount(100000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
-                                    >
-                                        100rb
-                                    </button>
-                                    <button
-                                        type="button"
-                                        wire:click="setExactCash"
-                                        class="py-1.5 px-2 bg-primary-100 hover:bg-primary-200 dark:bg-primary-950 dark:hover:bg-primary-900 rounded-lg text-xs font-black text-primary-700 dark:text-primary-300 transition cursor-pointer"
-                                    >
-                                        Pas
-                                    </button>
-                                </div>
-                            </div>
-
-                            {{-- Tampilan Kembalian --}}
-                            <div class="p-3.5 bg-gray-50 dark:bg-gray-800/80 rounded-xl border border-gray-200/80 dark:border-gray-700/80 flex items-center justify-between">
-                                <span class="text-xs font-bold text-gray-600 dark:text-gray-300">
-                                    Uang Kembalian:
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                                Uang Tunai Diterima (Rp)
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-bold text-gray-400">
+                                    Rp
                                 </span>
-                                <span class="text-lg font-black {{ $this->changeAmount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-gray-100' }}">
+                                <input
+                                    type="number"
+                                    wire:model.live="paidAmount"
+                                    placeholder="0"
+                                    class="w-full pl-10 pr-4 py-2.5 text-base font-bold bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 dark:text-gray-100"
+                                    autofocus
+                                />
+                            </div>
+
+                            {{-- Tombol Shortcut Pecahan Cepat --}}
+                            <div class="flex flex-wrap gap-1.5 pt-1">
+                                <button
+                                    type="button"
+                                    wire:click="setExactCash"
+                                    class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 hover:bg-amber-200 cursor-pointer"
+                                >
+                                    Uang Pas (Rp {{ number_format($this->totalAmount, 0, ',', '.') }})
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="setQuickCash(10000)"
+                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                >
+                                    10.000
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="setQuickCash(20000)"
+                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                >
+                                    20.000
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="setQuickCash(50000)"
+                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                >
+                                    50.000
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="setQuickCash(100000)"
+                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                >
+                                    100.000
+                                </button>
+                            </div>
+
+                            {{-- Kalkulasi Kembalian --}}
+                            <div class="p-3 bg-gray-50 dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs">
+                                <span class="font-medium text-gray-600 dark:text-gray-300">Kembalian:</span>
+                                <span class="text-base font-black {{ $this->changeAmount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500' }} font-mono">
                                     Rp {{ number_format($this->changeAmount, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
                     @else
-                        {{-- Non Tunai Alert --}}
-                        <div class="p-4 bg-primary-50/50 dark:bg-primary-950/40 rounded-xl border border-primary-200/60 dark:border-primary-800/60 text-center space-y-1">
-                            <p class="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                                Pembayaran non-tunai otomatis disesuaikan tepat:
-                            </p>
-                            <p class="text-xl font-black text-primary-600 dark:text-primary-400">
-                                Rp {{ number_format($this->totalAmount, 0, ',', '.') }}
+                        {{-- Info QRIS / Transfer --}}
+                        <div class="p-3.5 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800 text-xs text-blue-800 dark:text-blue-300 space-y-1">
+                            <p class="font-bold">Pembayaran Otomatis Uang Pas</p>
+                            <p class="text-[11px] opacity-90">
+                                Transaksi akan langsung dicatat lunas sejumlah <strong>Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</strong> tanpa kembalian.
                             </p>
                         </div>
                     @endif
                 </div>
 
-                {{-- Footer Modal Actions --}}
-                <div class="p-5 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 flex items-center justify-end gap-3">
+                {{-- Footer Modal --}}
+                <div class="p-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-2">
                     <button
                         type="button"
                         wire:click="closePaymentModal"
-                        class="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
+                        class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
                     >
                         Batal
                     </button>
                     <button
                         type="button"
                         wire:click="checkout"
-                        class="px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold shadow-md hover:shadow-lg transition flex items-center gap-2 cursor-pointer"
+                        class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                         Konfirmasi Pembayaran
@@ -476,15 +546,15 @@
     {{-- ================= MODAL TRANSAKSI SUKSES & NOTA ================= --}}
     @if ($showSuccessModal && $lastOrder)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-sm w-full shadow-2xl border border-gray-200 dark:border-gray-800 p-5 space-y-4 text-center animate-in fade-in zoom-in-95 duration-150">
-                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-xs sm:max-w-sm w-full shadow-2xl border border-gray-200 dark:border-gray-800 p-4 space-y-3 text-center animate-in fade-in zoom-in-95 duration-150">
+                <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
+                    <svg class="pos-icon text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
 
                 <div>
-                    <h3 class="text-lg font-black text-gray-900 dark:text-gray-100">
+                    <h3 class="text-base font-black text-gray-900 dark:text-gray-100">
                         Transaksi Sukses!
                     </h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -493,7 +563,7 @@
                 </div>
 
                 {{-- Preview Struk Visual Thermal --}}
-                <div class="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-left overflow-hidden">
+                <div class="p-2.5 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-left overflow-hidden">
                     @include('filament.pages.partials.receipt', ['order' => $lastOrder])
                 </div>
 
@@ -501,14 +571,14 @@
                     <button
                         type="button"
                         wire:click="printLastReceipt"
-                        class="flex-1 py-2.5 px-3 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        class="flex-1 py-2 px-3 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer"
                     >
                         🖨️ Cetak Ulang
                     </button>
                     <button
                         type="button"
                         wire:click="closeSuccessModal"
-                        class="flex-1 py-2.5 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs transition cursor-pointer"
+                        class="flex-1 py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition cursor-pointer"
                     >
                         Selesai (Baru)
                     </button>
