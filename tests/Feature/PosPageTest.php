@@ -152,6 +152,24 @@ class PosPageTest extends TestCase
     }
 
     /**
+     * Test manual text input for changing cart quantity.
+     */
+    public function test_can_manually_update_product_quantity_in_cart(): void
+    {
+        Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id)
+            ->call('updateQty', $this->lele->id, 4)
+            ->assertSet("cart.{$this->lele->id}.qty", 4)
+            ->assertSet("cart.{$this->lele->id}.subtotal", 72000.00)
+            ->call('updateQty', $this->lele->id, 100) // exceeds stock (5), should clamp to 5
+            ->assertSet("cart.{$this->lele->id}.qty", 5)
+            ->assertSet("cart.{$this->lele->id}.subtotal", 90000.00)
+            ->call('updateQty', $this->lele->id, 0) // zero should remove from cart
+            ->assertCount('cart', 0);
+    }
+
+    /**
      * Test cannot add out of stock product to cart.
      */
     public function test_cannot_add_out_of_stock_product_to_cart(): void

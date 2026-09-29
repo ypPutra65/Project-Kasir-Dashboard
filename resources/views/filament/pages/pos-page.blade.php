@@ -485,13 +485,36 @@
         .pos-qty-btn:hover {
             background: var(--pos-bg-input);
         }
-        .pos-qty-number {
-            width: 1.5rem;
+        .pos-qty-number,
+        .pos-qty-input {
+            width: 2.25rem;
+            height: 1.4rem;
             text-align: center;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 0.75rem;
             color: var(--pos-text-primary);
             font-family: monospace;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            padding: 0;
+            outline: none;
+            -moz-appearance: textfield;
+            transition: all 0.15s ease;
+        }
+        .pos-qty-input::-webkit-outer-spin-button,
+        .pos-qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .pos-qty-input:hover {
+            background: var(--pos-bg-input);
+            border-color: var(--pos-border);
+        }
+        .pos-qty-input:focus {
+            background: var(--pos-bg-card);
+            border-color: var(--pos-primary);
+            box-shadow: 0 0 0 2px var(--pos-primary-light);
         }
 
         .pos-item-subtotal {
@@ -972,22 +995,30 @@
                             </div>
 
                             <div class="pos-item-bottom">
-                                {{-- Tombol +/- Kuantitas --}}
+                                {{-- Tombol +/- & Input Kuantitas Manual --}}
                                 <div class="pos-qty-control">
                                     <button
                                         type="button"
                                         wire:click="decrementQty({{ $productId }})"
                                         class="pos-qty-btn"
+                                        title="Kurangi 1 porsi"
                                     >
                                         -
                                     </button>
-                                    <span class="pos-qty-number">
-                                        {{ $item['qty'] }}
-                                    </span>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="{{ $item['max_stock'] ?? 999 }}"
+                                        value="{{ $item['qty'] }}"
+                                        wire:change="updateQty({{ $productId }}, $event.target.value)"
+                                        class="pos-qty-input"
+                                        title="Ubah kuantitas manual"
+                                    />
                                     <button
                                         type="button"
                                         wire:click="incrementQty({{ $productId }})"
                                         class="pos-qty-btn"
+                                        title="Tambah 1 porsi"
                                     >
                                         +
                                     </button>

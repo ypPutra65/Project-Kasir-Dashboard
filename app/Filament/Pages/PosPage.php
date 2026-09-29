@@ -206,6 +206,39 @@ class PosPage extends Page
     }
 
     /**
+     * Ubah kuantitas produk di keranjang secara manual (ketik langsung).
+     */
+    public function updateQty(int $productId, mixed $qty): void
+    {
+        if (! isset($this->cart[$productId])) {
+            return;
+        }
+
+        $numericQty = (int) $qty;
+
+        if ($numericQty <= 0) {
+            $this->removeFromCart($productId);
+            return;
+        }
+
+        $product = Product::find($productId);
+        $maxStock = $product?->stock ?? $this->cart[$productId]['max_stock'] ?? 0;
+
+        if ($numericQty > $maxStock) {
+            $numericQty = $maxStock;
+
+            Notification::make()
+                ->title('Batas Stok Tercapai')
+                ->body("Sisa stok {$this->cart[$productId]['name']} hanya tersedia {$maxStock} porsi.")
+                ->warning()
+                ->send();
+        }
+
+        $this->cart[$productId]['qty'] = $numericQty;
+        $this->cart[$productId]['subtotal'] = $numericQty * $this->cart[$productId]['price'];
+    }
+
+    /**
      * Hapus satu item dari keranjang.
      */
     public function removeFromCart(int $productId): void
