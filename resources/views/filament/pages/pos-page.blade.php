@@ -976,7 +976,7 @@
                 {{-- Daftar Item Keranjang --}}
                 <div class="pos-cart-body">
                     @forelse ($cart as $productId => $item)
-                        <div class="pos-cart-item">
+                        <div class="pos-cart-item" wire:key="cart-item-{{ $productId }}">
                             <div class="pos-item-top">
                                 <div style="flex: 1; min-width: 0;">
                                     <div class="pos-item-name">{{ $item['name'] }}</div>
@@ -1007,10 +1007,12 @@
                                     </button>
                                     <input
                                         type="number"
+                                        wire:key="qty-input-{{ $productId }}-{{ $item['qty'] }}"
                                         min="1"
                                         max="{{ $item['max_stock'] ?? 999 }}"
                                         value="{{ $item['qty'] }}"
                                         wire:change="updateQty({{ $productId }}, $event.target.value)"
+                                        wire:blur="updateQty({{ $productId }}, $event.target.value)"
                                         class="pos-qty-input"
                                         title="Ubah kuantitas manual"
                                     />
