@@ -40,35 +40,8 @@
             }
 
             const doc = printIframe.contentDocument || printIframe.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <title>Struk Pembayaran - ${"{{ $order->order_number }}"}</title>
-                    <style>
-                        @page { size: 58mm auto; margin: 0; }
-                        html, body {
-                            margin: 0;
-                            padding: 2mm 1mm;
-                            width: 58mm;
-                            background: #ffffff;
-                            color: #000000;
-                            font-family: 'Courier New', Courier, monospace;
-                            box-sizing: border-box;
-                        }
-                        * {
-                            box-sizing: border-box;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${printEl.innerHTML}
-                </body>
-                </html>
-            `);
-            doc.close();
+            doc.head.innerHTML = '<title>Struk Pembayaran</title><style>@page{size:58mm auto;margin:0;}html,body{margin:0;padding:2mm 1mm;width:58mm;background:#ffffff;color:#000000;font-family:Courier New,monospace;box-sizing:border-box;}*{box-sizing:border-box;}</style>';
+            doc.body.innerHTML = printEl.innerHTML;
 
             setTimeout(() => {
                 printIframe.contentWindow.focus();

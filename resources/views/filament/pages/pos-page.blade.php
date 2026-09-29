@@ -1257,8 +1257,9 @@
     @endif
 
     {{-- Script Keyboard Shortcuts (F2: Cari Menu, F9: Bayar) & Trigger Otomatis Cetak Struk Thermal --}}
+    @script
     <script>
-        function printReceiptDirectly(sourceId) {
+        window.printReceiptDirectly = function(sourceId) {
             const receiptSource = (sourceId ? document.getElementById(sourceId) : null) 
                 || document.getElementById('pos-modal-receipt-preview') 
                 || document.getElementById('thermal-receipt-print-area');
@@ -1282,41 +1283,14 @@
             }
 
             const frameDoc = printIframe.contentDocument || printIframe.contentWindow.document;
-            frameDoc.open();
-            frameDoc.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <title>Struk Pembayaran - Budhe Lamongan</title>
-                    <style>
-                        @page { size: 58mm auto; margin: 0; }
-                        html, body {
-                            margin: 0;
-                            padding: 2mm 1mm;
-                            width: 58mm;
-                            background: #ffffff;
-                            color: #000000;
-                            font-family: 'Courier New', Courier, monospace;
-                            box-sizing: border-box;
-                        }
-                        * {
-                            box-sizing: border-box;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${receiptSource.innerHTML}
-                </body>
-                </html>
-            `);
-            frameDoc.close();
+            frameDoc.head.innerHTML = '<title>Struk Pembayaran - Budhe Lamongan</title><style>@page{size:58mm auto;margin:0;}html,body{margin:0;padding:2mm 1mm;width:58mm;background:#ffffff;color:#000000;font-family:Courier New,monospace;box-sizing:border-box;}*{box-sizing:border-box;}</style>';
+            frameDoc.body.innerHTML = receiptSource.innerHTML;
 
             setTimeout(() => {
                 printIframe.contentWindow.focus();
                 printIframe.contentWindow.print();
             }, 250);
-        }
+        };
 
         document.addEventListener('keydown', (e) => {
             // F2: Fokus langsung ke kolom pencarian menu
@@ -1332,16 +1306,15 @@
             // F9: Membuka modal pembayaran
             if (e.key === 'F9') {
                 e.preventDefault();
-                @this.call('openPaymentModal');
+                $wire.openPaymentModal();
             }
         });
 
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.on('print-receipt', () => {
-                setTimeout(() => {
-                    printReceiptDirectly('pos-modal-receipt-preview');
-                }, 300);
-            });
+        $wire.on('print-receipt', () => {
+            setTimeout(() => {
+                window.printReceiptDirectly('pos-modal-receipt-preview');
+            }, 300);
         });
     </script>
+    @endscript
 </x-filament-panels::page>
