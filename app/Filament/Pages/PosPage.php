@@ -52,7 +52,7 @@ class PosPage extends Page
     /**
      * Nominal uang yang diterima dari pembeli.
      */
-    public ?float $paidAmount = null;
+    public mixed $paidAmount = null;
 
     /**
      * Status modal pembayaran.
@@ -306,9 +306,17 @@ class PosPage extends Page
     /**
      * Set nominal uang tunai cepat via tombol pecahan.
      */
-    public function setPaidAmount(float $amount): void
+    public function setPaidAmount(float|int|string $amount): void
     {
-        $this->paidAmount = $amount;
+        $this->paidAmount = is_numeric($amount) ? (float) $amount : null;
+    }
+
+    /**
+     * Set nominal uang tunai cepat dari shortcut tombol uang pecahan.
+     */
+    public function setQuickCash(float|int|string $amount): void
+    {
+        $this->paidAmount = is_numeric($amount) ? (float) $amount : null;
     }
 
     /**
@@ -328,7 +336,9 @@ class PosPage extends Page
             return 0.00;
         }
 
-        return max(0, ($this->paidAmount ?? 0) - $this->totalAmount);
+        $paid = is_numeric($this->paidAmount) ? (float) $this->paidAmount : 0.0;
+
+        return max(0, $paid - $this->totalAmount);
     }
 
     /**

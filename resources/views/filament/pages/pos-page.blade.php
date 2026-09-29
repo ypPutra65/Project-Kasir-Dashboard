@@ -1436,8 +1436,10 @@
                                 </span>
                                 <input
                                     type="number"
-                                    wire:model.live="paidAmount"
+                                    wire:key="pos-cash-paid-input"
+                                    wire:model.live.debounce.250ms="paidAmount"
                                     placeholder="0"
+                                    min="0"
                                     class="pos-input-money"
                                     autofocus
                                 />

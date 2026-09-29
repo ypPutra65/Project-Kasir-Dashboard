@@ -240,8 +240,11 @@ class PosPageTest extends TestCase
             ->call('addToCart', $this->lele->id) // 18.000
             ->call('openPaymentModal')
             ->call('setPaidAmount', 50000)
-            ->assertSet('paidAmount', 50000)
+            ->assertSet('paidAmount', 50000.0)
             ->assertSet('changeAmount', 32000.00)
+            ->call('setQuickCash', 20000)
+            ->assertSet('paidAmount', 20000.0)
+            ->assertSet('changeAmount', 2000.00)
             ->call('setExactCash')
             ->assertSet('paidAmount', 18000.00)
             ->assertSet('changeAmount', 0.00);
