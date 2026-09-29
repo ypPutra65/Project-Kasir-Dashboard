@@ -106,6 +106,7 @@ class ProductResource extends Resource
     {
         return $table
             ->recordTitleAttribute('name')
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['category']))
             ->columns([
                 ImageColumn::make('image_path')
                     ->label('Foto')

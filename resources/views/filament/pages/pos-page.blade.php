@@ -45,11 +45,17 @@
                         </svg>
                     </div>
                     <input
+                        id="pos-search-input"
                         type="text"
                         wire:model.live.debounce.300ms="search"
-                        placeholder="Ketik nama menu makanan atau minuman (Cari cepat)..."
-                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:text-gray-100 placeholder-gray-400"
+                        placeholder="Ketik nama menu makanan atau minuman (Cari cepat / F2)..."
+                        class="w-full pl-10 pr-12 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:text-gray-100 placeholder-gray-400"
                     />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-bold bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded border border-gray-300 dark:border-gray-600 shadow-xs">
+                            F2
+                        </kbd>
+                    </div>
                 </div>
 
                 {{-- Category Filter Tabs --}}
@@ -511,8 +517,26 @@
         </div>
     @endif
 
-    {{-- Script Trigger Otomatis window.print() --}}
+    {{-- Script Keyboard Shortcuts (F2: Cari Menu, F9: Bayar) & Trigger Otomatis window.print() --}}
     <script>
+        document.addEventListener('keydown', (e) => {
+            // F2: Fokus langsung ke kolom pencarian menu
+            if (e.key === 'F2') {
+                e.preventDefault();
+                const searchInput = document.getElementById('pos-search-input');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            }
+
+            // F9: Membuka modal pembayaran
+            if (e.key === 'F9') {
+                e.preventDefault();
+                @this.call('openPaymentModal');
+            }
+        });
+
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('print-receipt', () => {
                 setTimeout(() => {

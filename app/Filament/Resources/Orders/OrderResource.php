@@ -65,6 +65,7 @@ class OrderResource extends Resource
         return $table
             ->recordTitleAttribute('order_number')
             ->defaultSort('ordered_at', 'desc')
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['orderItems.product.category']))
             ->columns([
                 TextColumn::make('order_number')
                     ->label('No. Nota')
