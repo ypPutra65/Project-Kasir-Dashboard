@@ -238,4 +238,110 @@ class ProductResourceTest extends TestCase
             'id' => $product->id,
         ]);
     }
+
+    /**
+     * Test stock adjustment addition (in).
+     */
+    public function test_can_adjust_stock_in_addition(): void
+    {
+        $product = Product::create([
+            'category_id' => $this->category->id,
+            'name' => 'Lele Goreng',
+            'cost_price' => 10000.00,
+            'selling_price' => 18000.00,
+            'stock' => 10,
+            'min_stock_alert' => 5,
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($this->owner)
+            ->test(ListProducts::class)
+            ->callTableAction('adjustStock', $product, data: [
+                'type' => 'in',
+                'quantity' => 15,
+                'notes' => 'Belanja lele pagi',
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'stock' => 25,
+        ]);
+
+        $this->assertDatabaseHas('stock_mutations', [
+            'product_id' => $product->id,
+            'type' => 'in',
+            'quantity' => 15,
+            'notes' => 'Belanja lele pagi',
+        ]);
+    }
+
+    /**
+     * Test stock adjustment reduction (waste).
+     */
+    public function test_can_adjust_stock_waste_subtraction(): void
+    {
+        $product = Product::create([
+            'category_id' => $this->category->id,
+            'name' => 'Bebek Bakar',
+            'cost_price' => 18000.00,
+            'selling_price' => 30000.00,
+            'stock' => 20,
+            'min_stock_alert' => 5,
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($this->owner)
+            ->test(ListProducts::class)
+            ->callTableAction('adjustStock', $product, data: [
+                'type' => 'waste',
+                'quantity' => 4,
+                'notes' => 'Porsi sisa basi',
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'stock' => 16,
+        ]);
+
+        $this->assertDatabaseHas('stock_mutations', [
+            'product_id' => $product->id,
+            'type' => 'waste',
+            'quantity' => 4,
+            'notes' => 'Porsi sisa basi',
+        ]);
+    }
+
+    /**
+     * Test rejection when waste exceeds available stock.
+     */
+    public function test_cannot_adjust_stock_waste_exceeding_available_stock(): void
+    {
+        $product = Product::create([
+            'category_id' => $this->category->id,
+            'name' => 'Ayam Goreng',
+            'cost_price' => 13000.00,
+            'selling_price' => 22000.00,
+            'stock' => 5,
+            'min_stock_alert' => 5,
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($this->owner)
+            ->test(ListProducts::class)
+            ->callTableAction('adjustStock', $product, data: [
+                'type' => 'waste',
+                'quantity' => 10,
+                'notes' => 'Melebihi sisa stok',
+            ])
+            ->assertHasTableActionErrors(['quantity']);
+
+        // Verify stock remains untouched
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'stock' => 5,
+        ]);
+    }
 }
+
