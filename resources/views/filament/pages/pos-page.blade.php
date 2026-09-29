@@ -150,7 +150,7 @@
                             type="button"
                             wire:click="clearCart"
                             wire:confirm="Yakin ingin mengosongkan keranjang pesanan?"
-                            class="text-xs text-red-500 hover:text-red-700 font-semibold transition"
+                            class="text-xs text-red-500 hover:text-red-700 font-semibold transition cursor-pointer"
                         >
                             Kosongkan
                         </button>
@@ -178,7 +178,7 @@
                                 <button
                                     type="button"
                                     wire:click="decrementQty({{ $productId }})"
-                                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center font-bold text-sm transition"
+                                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center font-bold text-sm transition cursor-pointer"
                                 >
                                     -
                                 </button>
@@ -188,14 +188,14 @@
                                 <button
                                     type="button"
                                     wire:click="incrementQty({{ $productId }})"
-                                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center font-bold text-sm transition"
+                                    class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center font-bold text-sm transition cursor-pointer"
                                 >
                                     +
                                 </button>
                                 <button
                                     type="button"
                                     wire:click="removeFromCart({{ $productId }})"
-                                    class="ml-1 text-gray-400 hover:text-red-500 p-1 rounded transition"
+                                    class="ml-1 text-gray-400 hover:text-red-500 p-1 rounded transition cursor-pointer"
                                     title="Hapus Menu"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,6 +238,7 @@
                     {{-- Tombol Lanjut ke Pembayaran --}}
                     <button
                         type="button"
+                        wire:click="openPaymentModal"
                         @if (count($cart) === 0) disabled @endif
                         class="w-full py-3 px-4 rounded-xl font-bold text-sm text-white transition flex items-center justify-center gap-2 shadow-sm
                             {{ count($cart) > 0 
@@ -253,4 +254,237 @@
             </div>
         </div>
     </div>
+
+    {{-- ================= MODAL PEMBAYARAN KASIR ================= --}}
+    @if ($showPaymentModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-lg w-full shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                {{-- Header Modal --}}
+                <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-black text-gray-900 dark:text-gray-100">
+                            Pembayaran Kasir
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Total Tagihan: <span class="font-bold text-primary-600 dark:text-primary-400">Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</span> ({{ $this->totalItems }} porsi)
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        wire:click="closePaymentModal"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-5 space-y-4">
+                    {{-- Pilihan Metode Pembayaran --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
+                            Pilih Metode Pembayaran
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button
+                                type="button"
+                                wire:click="setPaymentMethod('cash')"
+                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
+                                    {{ $paymentMethod === 'cash' 
+                                        ? 'border-primary-600 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20' 
+                                        : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50' }}"
+                            >
+                                💵 Tunai (Cash)
+                            </button>
+                            <button
+                                type="button"
+                                wire:click="setPaymentMethod('qris')"
+                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
+                                    {{ $paymentMethod === 'qris' 
+                                        ? 'border-primary-600 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20' 
+                                        : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50' }}"
+                            >
+                                📱 QRIS
+                            </button>
+                            <button
+                                type="button"
+                                wire:click="setPaymentMethod('transfer')"
+                                class="py-2.5 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
+                                    {{ $paymentMethod === 'transfer' 
+                                        ? 'border-primary-600 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20' 
+                                        : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50' }}"
+                            >
+                                🏦 Transfer Bank
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Form Pembayaran Tunai --}}
+                    @if ($paymentMethod === 'cash')
+                        <div class="space-y-3 pt-2">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                                    Uang Tunai Diterima (Rp)
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 font-bold text-sm">
+                                        Rp
+                                    </div>
+                                    <input
+                                        type="number"
+                                        wire:model.live="paidAmount"
+                                        placeholder="0"
+                                        class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-lg font-black text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    />
+                                </div>
+                                @error('paidAmount')
+                                    <p class="text-xs text-red-500 mt-1 font-semibold">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Tombol Shortcut Pecahan Tunai Cepat --}}
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                                    Pecahan Cepat / Uang Pas:
+                                </label>
+                                <div class="grid grid-cols-5 gap-1.5">
+                                    <button
+                                        type="button"
+                                        wire:click="setPaidAmount(10000)"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                    >
+                                        10rb
+                                    </button>
+                                    <button
+                                        type="button"
+                                        wire:click="setPaidAmount(20000)"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                    >
+                                        20rb
+                                    </button>
+                                    <button
+                                        type="button"
+                                        wire:click="setPaidAmount(50000)"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                    >
+                                        50rb
+                                    </button>
+                                    <button
+                                        type="button"
+                                        wire:click="setPaidAmount(100000)"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                    >
+                                        100rb
+                                    </button>
+                                    <button
+                                        type="button"
+                                        wire:click="setExactCash"
+                                        class="py-1.5 px-2 bg-primary-100 hover:bg-primary-200 dark:bg-primary-950 dark:hover:bg-primary-900 rounded-lg text-xs font-black text-primary-700 dark:text-primary-300 transition"
+                                    >
+                                        Pas
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Tampilan Kembalian --}}
+                            <div class="p-3.5 bg-gray-50 dark:bg-gray-800/80 rounded-xl border border-gray-200/80 dark:border-gray-700/80 flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-600 dark:text-gray-300">
+                                    Uang Kembalian:
+                                </span>
+                                <span class="text-lg font-black {{ $this->changeAmount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-gray-100' }}">
+                                    Rp {{ number_format($this->changeAmount, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        {{-- Non Tunai Alert --}}
+                        <div class="p-4 bg-primary-50/50 dark:bg-primary-950/40 rounded-xl border border-primary-200/60 dark:border-primary-800/60 text-center space-y-1">
+                            <p class="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                Pembayaran non-tunai otomatis disesuaikan tepat:
+                            </p>
+                            <p class="text-xl font-black text-primary-600 dark:text-primary-400">
+                                Rp {{ number_format($this->totalAmount, 0, ',', '.') }}
+                            </p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Footer Modal Actions --}}
+                <div class="p-5 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 flex items-center justify-end gap-3">
+                    <button
+                        type="button"
+                        wire:click="closePaymentModal"
+                        class="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        type="button"
+                        wire:click="checkout"
+                        class="px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold shadow-md hover:shadow-lg transition flex items-center gap-2 cursor-pointer"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Konfirmasi Pembayaran
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ================= MODAL TRANSAKSI SUKSES & NOTA ================= --}}
+    @if ($showSuccessModal && $lastOrder)
+        <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-5 text-center">
+                <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-gray-100">
+                        Transaksi Berhasil!
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Nomor Nota: <span class="font-bold text-gray-800 dark:text-gray-200">{{ $lastOrder->order_number }}</span>
+                    </p>
+                </div>
+
+                {{-- Detail Nota Ringkas --}}
+                <div class="p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-left text-xs space-y-2">
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>Metode Pembayaran:</span>
+                        <span class="font-bold uppercase">{{ $lastOrder->payment_method }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>Total Tagihan:</span>
+                        <span class="font-bold">Rp {{ number_format((float) $lastOrder->total_amount, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>Nominal Bayar:</span>
+                        <span class="font-bold">Rp {{ number_format((float) $lastOrder->paid_amount, 0, ',', '.') }}</span>
+                    </div>
+                    @if ($lastOrder->payment_method === 'cash')
+                        <div class="flex justify-between text-emerald-600 font-bold border-t border-gray-200 dark:border-gray-700 pt-1.5">
+                            <span>Kembalian:</span>
+                            <span>Rp {{ number_format((float) $lastOrder->change_amount, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button
+                        type="button"
+                        wire:click="closeSuccessModal"
+                        class="w-full py-2.5 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm transition cursor-pointer"
+                    >
+                        Selesai / Transaksi Baru
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </x-filament-panels::page>

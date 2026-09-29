@@ -197,4 +197,160 @@ class PosPageTest extends TestCase
             ->call('clearCart')
             ->assertCount('cart', 0);
     }
+
+    /**
+     * Test opening and closing payment modal.
+     */
+    public function test_can_open_and_close_payment_modal(): void
+    {
+        Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id)
+            ->call('openPaymentModal')
+            ->assertSet('showPaymentModal', true)
+            ->call('closePaymentModal')
+            ->assertSet('showPaymentModal', false);
+    }
+
+    /**
+     * Test quick cash shortcuts and change calculation.
+     */
+    public function test_quick_cash_buttons_and_change_calculation(): void
+    {
+        Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id) // 18.000
+            ->call('openPaymentModal')
+            ->call('setPaidAmount', 50000)
+            ->assertSet('paidAmount', 50000)
+            ->assertSet('changeAmount', 32000.00)
+            ->call('setExactCash')
+            ->assertSet('paidAmount', 18000.00)
+            ->assertSet('changeAmount', 0.00);
+    }
+
+    /**
+     * Test successful cash checkout, stock decrement, order items snapshot, and sale mutation.
+     */
+    public function test_successful_cash_checkout_with_stock_deduction_and_mutation(): void
+    {
+        $initialStockLele = $this->lele->stock; // 5
+        $initialStockEsTeh = $this->esTeh->stock; // 20
+
+        Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id) // 1x 18.000
+            ->call('addToCart', $this->esTeh->id) // 1x 5.000 (Total: 23.000)
+            ->call('openPaymentModal')
+            ->call('setPaidAmount', 50000)
+            ->call('checkout')
+            ->assertHasNoErrors()
+            ->assertSet('showPaymentModal', false)
+            ->assertSet('showSuccessModal', true)
+            ->assertCount('cart', 0);
+
+        // Verify Order in database
+        $this->assertDatabaseHas('orders', [
+            'total_amount' => 23000.00,
+            'paid_amount' => 50000.00,
+            'change_amount' => 27000.00,
+            'payment_method' => 'cash',
+            'status' => 'paid',
+        ]);
+
+        // Verify Order Items snapshot
+        $this->assertDatabaseHas('order_items', [
+            'product_id' => $this->lele->id,
+            'quantity' => 1,
+            'cost_price' => 10000.00,
+            'unit_price' => 18000.00,
+            'subtotal' => 18000.00,
+        ]);
+
+        $this->assertDatabaseHas('order_items', [
+            'product_id' => $this->esTeh->id,
+            'quantity' => 1,
+            'cost_price' => 1500.00,
+            'unit_price' => 5000.00,
+            'subtotal' => 5000.00,
+        ]);
+
+        // Verify stock decremented
+        $this->assertEquals($initialStockLele - 1, $this->lele->fresh()->stock);
+        $this->assertEquals($initialStockEsTeh - 1, $this->esTeh->fresh()->stock);
+
+        // Verify stock mutations recorded
+        $this->assertDatabaseHas('stock_mutations', [
+            'product_id' => $this->lele->id,
+            'type' => 'sale',
+            'quantity' => 1,
+        ]);
+
+        $this->assertDatabaseHas('stock_mutations', [
+            'product_id' => $this->esTeh->id,
+            'type' => 'sale',
+            'quantity' => 1,
+        ]);
+    }
+
+    /**
+     * Test successful QRIS cashless checkout.
+     */
+    public function test_successful_qris_checkout(): void
+    {
+        Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id)
+            ->call('openPaymentModal')
+            ->call('setPaymentMethod', 'qris')
+            ->call('checkout')
+            ->assertHasNoErrors()
+            ->assertSet('showSuccessModal', true);
+
+        $this->assertDatabaseHas('orders', [
+            'total_amount' => 18000.00,
+            'paid_amount' => 18000.00,
+            'change_amount' => 0.00,
+            'payment_method' => 'qris',
+            'status' => 'paid',
+        ]);
+    }
+
+    /**
+     * Test validation failure when cash paid amount is less than total amount.
+     */
+    public function test_cannot_checkout_cash_with_insufficient_paid_amount(): void
+    {
+        Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id) // 18.000
+            ->call('openPaymentModal')
+            ->call('setPaidAmount', 10000) // Less than 18.000
+            ->call('checkout')
+            ->assertHasErrors(['paidAmount']);
+
+        $this->assertEquals(0, \App\Models\Order::count());
+    }
+
+    /**
+     * Test rollback and error when stock becomes insufficient before checkout completes.
+     */
+    public function test_atomic_rollback_when_stock_becomes_insufficient(): void
+    {
+        $component = Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id); // Cart has 1 item
+
+        // Manually simulate another process setting stock to 0
+        $this->lele->update(['stock' => 0]);
+
+        $component->call('openPaymentModal')
+            ->call('setExactCash')
+            ->call('checkout')
+            ->assertHasErrors(['cart']);
+
+        $this->assertEquals(0, \App\Models\Order::count());
+        $this->assertEquals(0, \App\Models\OrderItem::count());
+    }
 }
+
