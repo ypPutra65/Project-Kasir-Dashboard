@@ -1,15 +1,56 @@
 <x-filament-panels::page>
-    {{-- Scoped Stylesheet untuk Kasir Cepat (POS) & Printer Thermal --}}
+    {{-- =========================================================================
+         SCOPED DESIGN SYSTEM: BUDHE LAMONGAN FAST POS TERMINAL
+         Self-contained, responsive, dark/light theme aware, zero Tailwind purging bugs
+         ========================================================================= --}}
     <style>
-        /* Reset & Ukuran SVG Ikon */
-        .pos-icon-xs { width: 0.875rem !important; height: 0.875rem !important; min-width: 0.875rem !important; max-width: 0.875rem !important; flex-shrink: 0; }
-        .pos-icon-sm { width: 1rem !important; height: 1rem !important; min-width: 1rem !important; max-width: 1rem !important; flex-shrink: 0; }
-        .pos-icon { width: 1.25rem !important; height: 1.25rem !important; min-width: 1.25rem !important; max-width: 1.25rem !important; flex-shrink: 0; }
-        .pos-icon-lg { width: 1.75rem !important; height: 1.75rem !important; min-width: 1.75rem !important; max-width: 1.75rem !important; flex-shrink: 0; }
-        .pos-icon-xl { width: 2.5rem !important; height: 2.5rem !important; min-width: 2.5rem !important; max-width: 2.5rem !important; flex-shrink: 0; }
+        :root {
+            --pos-bg-card: #ffffff;
+            --pos-bg-subtle: #f8fafc;
+            --pos-bg-input: #f1f5f9;
+            --pos-border: #e2e8f0;
+            --pos-text-primary: #0f172a;
+            --pos-text-secondary: #475569;
+            --pos-text-muted: #94a3b8;
+            --pos-primary: #d97706;
+            --pos-primary-hover: #b45309;
+            --pos-primary-light: rgba(217, 119, 6, 0.12);
+            --pos-success: #16a34a;
+            --pos-success-bg: rgba(22, 163, 74, 0.12);
+            --pos-danger: #dc2626;
+            --pos-danger-bg: rgba(220, 38, 38, 0.12);
+            --pos-warning: #d97706;
+            --pos-warning-bg: rgba(217, 119, 6, 0.12);
+            --pos-info: #2563eb;
+            --pos-info-bg: rgba(37, 99, 235, 0.12);
+            --pos-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+            --pos-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
 
-        /* Layout Grid Utama POS */
-        .pos-layout-grid {
+        .dark, [data-theme="dark"], html.dark, .fi-body.dark {
+            --pos-bg-card: #18181b;
+            --pos-bg-subtle: #1f1f23;
+            --pos-bg-input: #27272a;
+            --pos-border: #2e2e33;
+            --pos-text-primary: #f8fafc;
+            --pos-text-secondary: #cbd5e1;
+            --pos-text-muted: #64748b;
+            --pos-primary: #f59e0b;
+            --pos-primary-hover: #d97706;
+            --pos-primary-light: rgba(245, 158, 11, 0.18);
+            --pos-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --pos-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* SVG Dimensions Lock */
+        .pos-icon-xs { width: 0.875rem !important; height: 0.875rem !important; min-width: 0.875rem !important; max-width: 0.875rem !important; flex-shrink: 0; display: inline-block; }
+        .pos-icon-sm { width: 1rem !important; height: 1rem !important; min-width: 1rem !important; max-width: 1rem !important; flex-shrink: 0; display: inline-block; }
+        .pos-icon { width: 1.25rem !important; height: 1.25rem !important; min-width: 1.25rem !important; max-width: 1.25rem !important; flex-shrink: 0; display: inline-block; }
+        .pos-icon-lg { width: 1.75rem !important; height: 1.75rem !important; min-width: 1.75rem !important; max-width: 1.75rem !important; flex-shrink: 0; display: inline-block; }
+        .pos-icon-xl { width: 2.5rem !important; height: 2.5rem !important; min-width: 2.5rem !important; max-width: 2.5rem !important; flex-shrink: 0; display: inline-block; }
+
+        /* POS Root Grid Layout */
+        .pos-layout {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.25rem;
@@ -17,13 +58,106 @@
             margin-top: -0.5rem;
         }
         @media (min-width: 1024px) {
-            .pos-layout-grid {
-                grid-template-columns: minmax(0, 1.85fr) minmax(360px, 1.15fr);
+            .pos-layout {
+                grid-template-columns: minmax(0, 1.9fr) minmax(360px, 1.1fr);
                 align-items: start;
             }
         }
 
-        /* Grid Katalog Menu */
+        /* Left Side: Toolbar */
+        .pos-toolbar {
+            background: var(--pos-bg-card);
+            border: 1px solid var(--pos-border);
+            border-radius: 1rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: var(--pos-shadow);
+        }
+
+        .pos-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .pos-search-icon {
+            position: absolute;
+            left: 0.875rem;
+            color: var(--pos-text-muted);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .pos-search-input {
+            width: 100%;
+            height: 2.75rem;
+            padding: 0 3.25rem 0 2.75rem;
+            border-radius: 0.75rem;
+            border: 1.5px solid var(--pos-border);
+            background: var(--pos-bg-input);
+            color: var(--pos-text-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .pos-search-input:focus {
+            border-color: var(--pos-primary);
+            box-shadow: 0 0 0 3px var(--pos-primary-light);
+        }
+
+        .pos-search-kbd {
+            position: absolute;
+            right: 0.75rem;
+            padding: 0.2rem 0.45rem;
+            font-size: 0.6875rem;
+            font-family: monospace;
+            font-weight: 700;
+            border-radius: 0.375rem;
+            background: var(--pos-bg-card);
+            color: var(--pos-text-secondary);
+            border: 1px solid var(--pos-border);
+            pointer-events: none;
+        }
+
+        .pos-cat-tabs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+            scrollbar-width: thin;
+        }
+
+        .pos-cat-btn {
+            padding: 0.45rem 1rem;
+            border-radius: 0.625rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+            background: var(--pos-bg-input);
+            color: var(--pos-text-secondary);
+        }
+        .pos-cat-btn:hover {
+            background: var(--pos-border);
+            color: var(--pos-text-primary);
+        }
+        .pos-cat-btn.active {
+            background: var(--pos-primary);
+            color: #ffffff;
+            border-color: var(--pos-primary);
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+        }
+
+        /* Products Grid */
         .pos-grid-menu {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -40,42 +174,574 @@
             }
         }
 
-        /* Sticky Cart Container */
+        /* Product Card */
+        .pos-card {
+            background: var(--pos-bg-card);
+            border: 1.5px solid var(--pos-border);
+            border-radius: 1rem;
+            padding: 0.875rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+            box-shadow: var(--pos-shadow);
+        }
+        .pos-card:hover {
+            border-color: var(--pos-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--pos-shadow-lg);
+        }
+        .pos-card.in-cart {
+            border-color: var(--pos-primary);
+            background: var(--pos-primary-light);
+            box-shadow: 0 0 0 2px var(--pos-primary);
+        }
+        .pos-card.out-of-stock {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none !important;
+            background: var(--pos-bg-input);
+        }
+
+        .pos-card-img-wrap {
+            width: 100%;
+            height: 105px;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: var(--pos-bg-input);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.625rem;
+        }
+
+        .pos-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.25s ease;
+        }
+        .pos-card:hover .pos-card-img {
+            transform: scale(1.05);
+        }
+
+        .pos-qty-badge {
+            position: absolute;
+            top: 0.375rem;
+            right: 0.375rem;
+            background: var(--pos-primary);
+            color: #ffffff;
+            font-size: 0.6875rem;
+            font-weight: 800;
+            width: 1.4rem;
+            height: 1.4rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+            border: 2px solid var(--pos-bg-card);
+        }
+
+        .pos-out-badge {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+        }
+        .pos-out-text {
+            background: var(--pos-danger);
+            color: #ffffff;
+            font-size: 0.6875rem;
+            font-weight: 900;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.375rem;
+            letter-spacing: 0.06em;
+        }
+
+        .pos-card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .pos-card-cat {
+            font-size: 0.6875rem;
+            color: var(--pos-text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .pos-card-stock {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            padding: 0.1rem 0.35rem;
+            border-radius: 0.375rem;
+            white-space: nowrap;
+        }
+        .pos-stock-safe { background: var(--pos-success-bg); color: var(--pos-success); }
+        .pos-stock-low { background: var(--pos-warning-bg); color: var(--pos-warning); }
+        .pos-stock-empty { background: var(--pos-danger-bg); color: var(--pos-danger); }
+
+        .pos-card-title {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--pos-text-primary);
+            line-height: 1.25;
+            margin: 0.15rem 0 0.4rem 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+        }
+
+        .pos-card-price {
+            font-size: 0.875rem;
+            font-weight: 900;
+            color: var(--pos-primary);
+            font-family: monospace;
+            letter-spacing: -0.01em;
+        }
+
+        /* Right Side: Cart Panel */
         .pos-cart-panel {
+            background: var(--pos-bg-card);
+            border: 1px solid var(--pos-border);
+            border-radius: 1rem;
             position: sticky;
             top: 1rem;
             height: calc(100vh - 6.5rem);
             max-height: calc(100vh - 6.5rem);
             display: flex;
             flex-direction: column;
-            border-radius: 1rem;
+            box-shadow: var(--pos-shadow);
             overflow: hidden;
         }
 
-        /* Scrollbar Halus */
-        .pos-scroll-custom::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
-        }
-        .pos-scroll-custom::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .pos-scroll-custom::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.4);
-            border-radius: 9999px;
-        }
-        .pos-scroll-custom::-webkit-scrollbar-thumb:hover {
-            background: rgba(156, 163, 175, 0.7);
+        .pos-cart-header {
+            padding: 0.875rem 1.125rem;
+            border-bottom: 1px solid var(--pos-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--pos-bg-subtle);
         }
 
-        /* Print Thermal 58mm / 80mm */
+        .pos-cart-title-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .pos-cart-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--pos-text-primary);
+        }
+        .pos-cart-pill {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            background: var(--pos-primary-light);
+            color: var(--pos-primary);
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+        }
+
+        .pos-cart-clear-btn {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: var(--pos-danger);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.375rem;
+            transition: background 0.15s;
+        }
+        .pos-cart-clear-btn:hover {
+            background: var(--pos-danger-bg);
+        }
+
+        .pos-cart-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            scrollbar-width: thin;
+        }
+
+        .pos-cart-empty-box {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--pos-text-muted);
+            padding: 2rem 1rem;
+        }
+        .pos-cart-empty-icon {
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: 9999px;
+            background: var(--pos-bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            color: var(--pos-text-muted);
+        }
+
+        .pos-cart-item {
+            background: var(--pos-bg-input);
+            border: 1px solid var(--pos-border);
+            border-radius: 0.75rem;
+            padding: 0.625rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .pos-item-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .pos-item-name {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--pos-text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .pos-item-unit {
+            font-size: 0.6875rem;
+            color: var(--pos-text-muted);
+            font-family: monospace;
+        }
+
+        .pos-item-del-btn {
+            background: transparent;
+            border: none;
+            color: var(--pos-text-muted);
+            cursor: pointer;
+            padding: 0.15rem;
+            border-radius: 0.25rem;
+            transition: color 0.15s;
+            display: flex;
+            align-items: center;
+        }
+        .pos-item-del-btn:hover {
+            color: var(--pos-danger);
+        }
+
+        .pos-item-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid var(--pos-border);
+            padding-top: 0.35rem;
+        }
+
+        .pos-qty-control {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: var(--pos-bg-card);
+            border: 1px solid var(--pos-border);
+            border-radius: 0.5rem;
+            padding: 0.1rem;
+        }
+        .pos-qty-btn {
+            width: 1.4rem;
+            height: 1.4rem;
+            border: none;
+            background: transparent;
+            border-radius: 0.375rem;
+            font-weight: 800;
+            font-size: 0.75rem;
+            color: var(--pos-text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .pos-qty-btn:hover {
+            background: var(--pos-bg-input);
+        }
+        .pos-qty-number {
+            width: 1.5rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--pos-text-primary);
+            font-family: monospace;
+        }
+
+        .pos-item-subtotal {
+            font-size: 0.8125rem;
+            font-weight: 900;
+            color: var(--pos-text-primary);
+            font-family: monospace;
+        }
+
+        .pos-cart-footer {
+            padding: 0.875rem 1.125rem;
+            border-top: 1px solid var(--pos-border);
+            background: var(--pos-bg-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+
+        .pos-summary-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--pos-text-secondary);
+        }
+        .pos-summary-total {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            border-top: 1px solid var(--pos-border);
+            padding-top: 0.35rem;
+        }
+        .pos-total-title {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: var(--pos-text-primary);
+        }
+        .pos-total-val {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--pos-primary);
+            font-family: monospace;
+            letter-spacing: -0.02em;
+        }
+
+        .pos-checkout-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            font-size: 0.8125rem;
+            font-weight: 800;
+            color: #ffffff;
+            background: var(--pos-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.25);
+        }
+        .pos-checkout-btn:hover {
+            background: var(--pos-primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 10px -2px rgba(217, 119, 6, 0.35);
+        }
+        .pos-checkout-btn:disabled {
+            background: var(--pos-border);
+            color: var(--pos-text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .pos-checkout-kbd {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-size: 0.6875rem;
+            font-family: monospace;
+            font-weight: 800;
+            padding: 0.15rem 0.35rem;
+            border-radius: 0.375rem;
+        }
+
+        /* Modal Styles */
+        .pos-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(3px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .pos-modal-card {
+            background: var(--pos-bg-card);
+            border: 1px solid var(--pos-border);
+            border-radius: 1.25rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--pos-shadow-lg);
+            overflow: hidden;
+        }
+        .pos-modal-head {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--pos-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .pos-modal-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .pos-modal-foot {
+            padding: 0.875rem 1.25rem;
+            border-top: 1px solid var(--pos-border);
+            background: var(--pos-bg-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .pos-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        .pos-method-card {
+            padding: 0.625rem 0.5rem;
+            border-radius: 0.75rem;
+            border: 1.5px solid var(--pos-border);
+            background: var(--pos-bg-input);
+            color: var(--pos-text-primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            transition: all 0.15s;
+        }
+        .pos-method-card:hover {
+            border-color: var(--pos-primary);
+        }
+        .pos-method-card.active {
+            background: var(--pos-primary);
+            color: #ffffff;
+            border-color: var(--pos-primary);
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+        }
+
+        .pos-input-money {
+            width: 100%;
+            height: 2.75rem;
+            padding: 0 0.875rem 0 2.25rem;
+            border-radius: 0.75rem;
+            border: 1.5px solid var(--pos-border);
+            background: var(--pos-bg-input);
+            color: var(--pos-text-primary);
+            font-size: 1.125rem;
+            font-weight: 800;
+            font-family: monospace;
+            outline: none;
+        }
+        .pos-input-money:focus {
+            border-color: var(--pos-primary);
+            box-shadow: 0 0 0 3px var(--pos-primary-light);
+        }
+
+        .pos-quick-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+        }
+        .pos-quick-btn {
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--pos-border);
+            background: var(--pos-bg-input);
+            color: var(--pos-text-primary);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pos-quick-btn:hover {
+            background: var(--pos-border);
+        }
+        .pos-quick-btn.exact {
+            background: var(--pos-primary-light);
+            color: var(--pos-primary);
+            border-color: var(--pos-primary);
+            font-weight: 800;
+        }
+
+        .pos-change-box {
+            padding: 0.75rem 1rem;
+            background: var(--pos-bg-input);
+            border-radius: 0.75rem;
+            border: 1px solid var(--pos-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pos-btn-secondary {
+            padding: 0.5rem 1rem;
+            border-radius: 0.625rem;
+            border: 1px solid var(--pos-border);
+            background: var(--pos-bg-card);
+            color: var(--pos-text-secondary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pos-btn-secondary:hover {
+            background: var(--pos-bg-input);
+            color: var(--pos-text-primary);
+        }
+
+        .pos-btn-primary {
+            padding: 0.5rem 1.125rem;
+            border-radius: 0.625rem;
+            border: none;
+            background: var(--pos-primary);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .pos-btn-primary:hover {
+            background: var(--pos-primary-hover);
+        }
+
+        /* Thermal Receipt Print Styles */
         @media print {
-            body * {
-                visibility: hidden !important;
-            }
-            #thermal-receipt-print-area, #thermal-receipt-print-area * {
-                visibility: visible !important;
-            }
+            body * { visibility: hidden !important; }
+            #thermal-receipt-print-area, #thermal-receipt-print-area * { visibility: visible !important; }
             #thermal-receipt-print-area {
                 position: fixed !important;
                 left: 0 !important;
@@ -87,30 +753,27 @@
                 color: #000000 !important;
                 z-index: 99999 !important;
             }
-            @page {
-                size: 58mm auto;
-                margin: 0mm;
-            }
+            @page { size: 58mm auto; margin: 0mm; }
         }
     </style>
 
     {{-- Area Print Thermal Struk (Tersembunyi di layar normal, tampil saat window.print) --}}
-    <div id="thermal-receipt-print-area" class="hidden print:block">
+    <div id="thermal-receipt-print-area" style="display: none;">
         @if ($lastOrder)
             @include('filament.pages.partials.receipt', ['order' => $lastOrder])
         @endif
     </div>
 
     {{-- ================= KONTEN UTAMA POS ================= --}}
-    <div class="pos-layout-grid print:hidden">
+    <div class="pos-layout">
         {{-- ================= SISI KIRI: KATALOG MENU & PENCARIAN ================= --}}
-        <div class="space-y-3.5">
+        <div style="display: flex; flex-direction: column; gap: 0.875rem;">
             {{-- Toolbar: Kategori & Search --}}
-            <div class="bg-white dark:bg-gray-900 rounded-2xl p-3.5 shadow-xs border border-gray-200 dark:border-gray-800 space-y-3">
+            <div class="pos-toolbar">
                 {{-- Search Bar --}}
-                <div class="relative flex items-center">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+                <div class="pos-search-box">
+                    <div class="pos-search-icon">
+                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
@@ -119,21 +782,17 @@
                         type="text"
                         wire:model.live.debounce.300ms="search"
                         placeholder="Ketik nama menu makanan / minuman (Cari cepat / F2)..."
-                        class="w-full pl-10 pr-12 py-2.5 bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 dark:text-gray-100 placeholder-gray-400 transition"
+                        class="pos-search-input"
                     />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded border border-gray-300 dark:border-gray-600 shadow-xs">
-                            F2
-                        </kbd>
-                    </div>
+                    <kbd class="pos-search-kbd">F2</kbd>
                 </div>
 
                 {{-- Category Filter Tabs --}}
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 pos-scroll-custom">
+                <div class="pos-cat-tabs">
                     <button
                         type="button"
                         wire:click="selectCategory(null)"
-                        class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer {{ is_null($selectedCategoryId) ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-500/30' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300' }}"
+                        class="pos-cat-btn {{ is_null($selectedCategoryId) ? 'active' : '' }}"
                     >
                         Semua Kategori
                     </button>
@@ -141,7 +800,7 @@
                         <button
                             type="button"
                             wire:click="selectCategory({{ $category->id }})"
-                            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer {{ $selectedCategoryId === $category->id ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-500/30' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300' }}"
+                            class="pos-cat-btn {{ $selectedCategoryId === $category->id ? 'active' : '' }}"
                         >
                             {{ $category->name }}
                         </button>
@@ -161,73 +820,63 @@
                         @if (! $isOutOfStock)
                             wire:click="addToCart({{ $product->id }})"
                         @endif
-                        class="group relative bg-white dark:bg-gray-900 rounded-2xl p-3 border transition-all duration-150 flex flex-col justify-between select-none
-                            {{ $isOutOfStock 
-                                ? 'opacity-55 bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 cursor-not-allowed' 
-                                : 'hover:border-amber-500 hover:shadow-md cursor-pointer border-gray-200 dark:border-gray-800 active:scale-[0.98]' }}
-                            {{ $inCart ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-50/15 dark:bg-amber-950/20' : '' }}"
+                        class="pos-card {{ $isOutOfStock ? 'out-of-stock' : '' }} {{ $inCart ? 'in-cart' : '' }}"
                     >
                         {{-- Foto atau Placeholder --}}
-                        <div class="w-full h-24 sm:h-28 rounded-xl bg-gray-100 dark:bg-gray-800 overflow-hidden mb-2 relative flex items-center justify-center">
+                        <div class="pos-card-img-wrap">
                             @if ($product->image_path)
                                 <img
                                     src="{{ asset('storage/' . $product->image_path) }}"
                                     alt="{{ $product->name }}"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                    class="pos-card-img"
                                 />
                             @else
-                                <div class="text-gray-400 dark:text-gray-600 flex flex-col items-center justify-center">
-                                    <svg class="pos-icon-lg text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.75rem; height: 1.75rem;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                </div>
+                                <svg class="pos-icon-lg" style="color: var(--pos-text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
                             @endif
 
                             {{-- Badge Kuantitas di Keranjang --}}
                             @if ($inCart)
-                                <div class="absolute top-1.5 right-1.5 bg-amber-600 text-white text-[11px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-900">
+                                <div class="pos-qty-badge">
                                     {{ $cartQty }}
                                 </div>
                             @endif
 
                             {{-- Badge Habis --}}
                             @if ($isOutOfStock)
-                                <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-                                    <span class="bg-red-600 text-white text-[11px] font-black px-2 py-0.5 rounded-md tracking-wider shadow">
-                                        HABIS
-                                    </span>
+                                <div class="pos-out-badge">
+                                    <span class="pos-out-text">HABIS</span>
                                 </div>
                             @endif
                         </div>
 
                         {{-- Info Produk --}}
-                        <div class="space-y-1">
-                            <div class="flex items-center justify-between gap-1">
-                                <span class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 truncate">
+                        <div>
+                            <div class="pos-card-meta">
+                                <span class="pos-card-cat">
                                     {{ $product->category?->name }}
                                 </span>
-                                <span class="text-[10px] font-bold {{ $isOutOfStock ? 'text-red-500' : ($product->isLowStock() ? 'text-amber-500' : 'text-emerald-600 dark:text-emerald-400') }}">
+                                <span class="pos-card-stock {{ $isOutOfStock ? 'pos-stock-empty' : ($product->isLowStock() ? 'pos-stock-low' : 'pos-stock-safe') }}">
                                     Stok: {{ $product->stock }}
                                 </span>
                             </div>
 
-                            <h3 class="text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1 leading-tight">
+                            <div class="pos-card-title">
                                 {{ $product->name }}
-                            </h3>
+                            </div>
 
-                            <div class="pt-0.5 flex items-center justify-between">
-                                <span class="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400">
-                                    Rp {{ number_format((float) $product->selling_price, 0, ',', '.') }}
-                                </span>
+                            <div class="pos-card-price">
+                                Rp {{ number_format((float) $product->selling_price, 0, ',', '.') }}
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full py-12 text-center bg-white dark:bg-gray-900 rounded-2xl border border-dashed border-gray-300 dark:border-gray-800">
-                        <svg class="pos-icon-xl mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 2.5rem; height: 2.5rem; margin: 0 auto;">
+                    <div style="grid-column: 1 / -1; padding: 3rem 1rem; text-align: center; background: var(--pos-bg-card); border-radius: 1rem; border: 1.5px dashed var(--pos-border); color: var(--pos-text-muted);">
+                        <svg class="pos-icon-xl" style="margin: 0 auto 0.5rem auto; color: var(--pos-text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <p style="font-size: 0.875rem; font-weight: 600; color: var(--pos-text-secondary); margin: 0;">
                             Tidak ada menu yang sesuai dengan filter atau pencarian.
                         </p>
                     </div>
@@ -237,20 +886,16 @@
 
         {{-- ================= SISI KANAN: KERANJANG PESANAN ================= --}}
         <div>
-            <div class="pos-cart-panel bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800">
+            <div class="pos-cart-panel">
                 {{-- Header Keranjang --}}
-                <div class="p-3.5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
-                    <div class="flex items-center gap-2">
-                        <svg class="pos-icon text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+                <div class="pos-cart-header">
+                    <div class="pos-cart-title-box">
+                        <svg class="pos-icon" style="color: var(--pos-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
-                        <h2 class="text-sm font-bold text-gray-900 dark:text-gray-100">
-                            Ringkasan Pesanan
-                        </h2>
+                        <span class="pos-cart-title">Ringkasan Pesanan</span>
                         @if ($this->totalItems > 0)
-                            <span class="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-full">
-                                {{ $this->totalItems }} item
-                            </span>
+                            <span class="pos-cart-pill">{{ $this->totalItems }} item</span>
                         @endif
                     </div>
 
@@ -259,7 +904,7 @@
                             type="button"
                             wire:click="clearCart"
                             wire:confirm="Kosongkan seluruh keranjang belanja?"
-                            class="text-[11px] font-bold text-red-500 hover:text-red-700 transition cursor-pointer"
+                            class="pos-cart-clear-btn"
                         >
                             Kosongkan
                         </button>
@@ -267,85 +912,81 @@
                 </div>
 
                 {{-- Daftar Item Keranjang --}}
-                <div class="flex-1 overflow-y-auto p-3 space-y-2 pos-scroll-custom">
+                <div class="pos-cart-body">
                     @forelse ($cart as $productId => $item)
-                        <div class="p-2.5 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200/70 dark:border-gray-700/60 space-y-2">
-                            <div class="flex items-start justify-between gap-2">
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
-                                        {{ $item['name'] }}
-                                    </h4>
-                                    <div class="text-[10px] text-gray-500 dark:text-gray-400">
-                                        Rp {{ number_format((float) $item['price'], 0, ',', '.') }} / porsi
-                                    </div>
+                        <div class="pos-cart-item">
+                            <div class="pos-item-top">
+                                <div style="flex: 1; min-width: 0;">
+                                    <div class="pos-item-name">{{ $item['name'] }}</div>
+                                    <div class="pos-item-unit">Rp {{ number_format((float) $item['price'], 0, ',', '.') }} / porsi</div>
                                 </div>
                                 <button
                                     type="button"
                                     wire:click="removeFromCart({{ $productId }})"
-                                    class="text-gray-400 hover:text-red-500 transition p-1 cursor-pointer"
+                                    class="pos-item-del-btn"
                                     title="Hapus menu"
                                 >
-                                    <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
+                                    <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                 </button>
                             </div>
 
-                            <div class="flex items-center justify-between pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+                            <div class="pos-item-bottom">
                                 {{-- Tombol +/- Kuantitas --}}
-                                <div class="flex items-center gap-1.5 bg-white dark:bg-gray-900 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700">
+                                <div class="pos-qty-control">
                                     <button
                                         type="button"
                                         wire:click="decrementQty({{ $productId }})"
-                                        class="w-6 h-6 flex items-center justify-center rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold text-xs transition cursor-pointer"
+                                        class="pos-qty-btn"
                                     >
                                         -
                                     </button>
-                                    <span class="w-7 text-center font-bold text-xs text-gray-900 dark:text-gray-100">
+                                    <span class="pos-qty-number">
                                         {{ $item['qty'] }}
                                     </span>
                                     <button
                                         type="button"
                                         wire:click="incrementQty({{ $productId }})"
-                                        class="w-6 h-6 flex items-center justify-center rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold text-xs transition cursor-pointer"
+                                        class="pos-qty-btn"
                                     >
                                         +
                                     </button>
                                 </div>
 
                                 {{-- Subtotal Per Baris --}}
-                                <div class="font-black text-xs text-gray-900 dark:text-gray-100 font-mono">
+                                <div class="pos-item-subtotal">
                                     Rp {{ number_format((float) $item['subtotal'], 0, ',', '.') }}
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <div class="h-full flex flex-col items-center justify-center py-12 text-center text-gray-400 space-y-2">
-                            <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                <svg class="pos-icon-lg text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.75rem; height: 1.75rem;">
+                        <div class="pos-cart-empty-box">
+                            <div class="pos-cart-empty-icon">
+                                <svg class="pos-icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                                 </svg>
                             </div>
-                            <p class="text-xs font-bold text-gray-600 dark:text-gray-300">
+                            <div style="font-size: 0.8125rem; font-weight: 700; color: var(--pos-text-primary); margin-bottom: 0.25rem;">
                                 Keranjang Masih Kosong
-                            </p>
-                            <p class="text-[11px] text-gray-400 max-w-[200px]">
-                                Klik menu di sisi kiri untuk mulai mencatat pesanan.
-                            </p>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--pos-text-muted); max-width: 220px;">
+                                Klik menu di sisi kiri untuk mulai mencatat pesanan pelanggan.
+                            </div>
                         </div>
                     @endforelse
                 </div>
 
                 {{-- Footer & Total Tagihan --}}
-                <div class="p-3.5 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-2xl space-y-2.5">
-                    <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div class="pos-cart-footer">
+                    <div class="pos-summary-row">
                         <span>Total Kuantitas</span>
-                        <span class="font-bold text-gray-900 dark:text-gray-200">{{ $this->totalItems }} Porsi</span>
+                        <span style="font-weight: 700; color: var(--pos-text-primary);">{{ $this->totalItems }} Porsi</span>
                     </div>
 
-                    <div class="flex items-baseline justify-between pt-1 border-t border-gray-200/60 dark:border-gray-800">
-                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300">Total Tagihan</span>
-                        <span class="text-xl font-black text-amber-600 dark:text-amber-400 tracking-tight font-mono">
+                    <div class="pos-summary-total">
+                        <span class="pos-total-title">Total Tagihan</span>
+                        <span class="pos-total-val">
                             Rp {{ number_format($this->totalAmount, 0, ',', '.') }}
                         </span>
                     </div>
@@ -355,16 +996,13 @@
                         type="button"
                         wire:click="openPaymentModal"
                         @if (count($cart) === 0) disabled @endif
-                        class="w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm text-white transition flex items-center justify-center gap-2 shadow-xs
-                            {{ count($cart) > 0 
-                                ? 'bg-amber-600 hover:bg-amber-700 active:scale-[0.99] cursor-pointer' 
-                                : 'bg-gray-300 dark:bg-gray-800 text-gray-400 cursor-not-allowed' }}"
+                        class="pos-checkout-btn"
                     >
-                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                         <span>Proses Pembayaran</span>
-                        <kbd class="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white/20 text-white rounded">F9</kbd>
+                        <kbd class="pos-checkout-kbd">F9</kbd>
                     </button>
                 </div>
             </div>
@@ -373,167 +1011,157 @@
 
     {{-- ================= MODAL PEMBAYARAN KASIR ================= --}}
     @if ($showPaymentModal)
-        <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div class="pos-modal-overlay">
+            <div class="pos-modal-card">
                 {{-- Header Modal --}}
-                <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <div class="pos-modal-head">
                     <div>
-                        <h3 class="text-base font-black text-gray-900 dark:text-gray-100">
+                        <div style="font-size: 1rem; font-weight: 800; color: var(--pos-text-primary);">
                             Pembayaran Kasir
-                        </h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Total tagihan: <span class="font-bold text-amber-600 dark:text-amber-400">Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</span>
-                        </p>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--pos-text-muted);">
+                            Total tagihan: <span style="font-weight: 800; color: var(--pos-primary);">Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</span>
+                        </div>
                     </div>
                     <button
                         type="button"
                         wire:click="closePaymentModal"
-                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition p-1.5 rounded-lg cursor-pointer"
+                        class="pos-btn-secondary"
+                        style="padding: 0.25rem 0.5rem;"
                     >
-                        <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
+                        ✕
                     </button>
                 </div>
 
                 {{-- Body Modal --}}
-                <div class="p-4 space-y-4">
+                <div class="pos-modal-body">
                     {{-- Pilihan Metode Bayar --}}
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--pos-text-secondary); margin-bottom: 0.35rem;">
                             Metode Pembayaran
                         </label>
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="pos-methods-grid">
                             <button
                                 type="button"
                                 wire:click="setPaymentMethod('cash')"
-                                class="py-2 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
-                                    {{ $paymentMethod === 'cash' 
-                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs' 
-                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100' }}"
+                                class="pos-method-card {{ $paymentMethod === 'cash' ? 'active' : '' }}"
                             >
                                 <span>💵 Tunai</span>
-                                <span class="text-[10px] font-normal opacity-90">Cash</span>
+                                <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">Cash</span>
                             </button>
 
                             <button
                                 type="button"
                                 wire:click="setPaymentMethod('qris')"
-                                class="py-2 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
-                                    {{ $paymentMethod === 'qris' 
-                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs' 
-                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100' }}"
+                                class="pos-method-card {{ $paymentMethod === 'qris' ? 'active' : '' }}"
                             >
                                 <span>📱 QRIS</span>
-                                <span class="text-[10px] font-normal opacity-90">Non-Tunai</span>
+                                <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">Non-Tunai</span>
                             </button>
 
                             <button
                                 type="button"
                                 wire:click="setPaymentMethod('transfer')"
-                                class="py-2 px-3 rounded-xl border text-xs font-bold transition flex flex-col items-center gap-1 cursor-pointer
-                                    {{ $paymentMethod === 'transfer' 
-                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs' 
-                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100' }}"
+                                class="pos-method-card {{ $paymentMethod === 'transfer' ? 'active' : '' }}"
                             >
                                 <span>🏦 Transfer</span>
-                                <span class="text-[10px] font-normal opacity-90">Bank</span>
+                                <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">Bank</span>
                             </button>
                         </div>
                     </div>
 
                     {{-- Form Input Tunai Diterima (Hanya Tampil Jika Metode Cash) --}}
                     @if ($paymentMethod === 'cash')
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--pos-text-secondary);">
                                 Uang Tunai Diterima (Rp)
                             </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-xs font-bold text-gray-400">
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <span style="position: absolute; left: 0.75rem; font-size: 0.875rem; font-weight: 800; color: var(--pos-text-muted);">
                                     Rp
                                 </span>
                                 <input
                                     type="number"
                                     wire:model.live="paidAmount"
                                     placeholder="0"
-                                    class="w-full pl-10 pr-4 py-2.5 text-base font-bold bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-amber-500 dark:text-gray-100"
+                                    class="pos-input-money"
                                     autofocus
                                 />
                             </div>
 
                             {{-- Tombol Shortcut Pecahan Cepat --}}
-                            <div class="flex flex-wrap gap-1.5 pt-1">
+                            <div class="pos-quick-grid">
                                 <button
                                     type="button"
                                     wire:click="setExactCash"
-                                    class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 hover:bg-amber-200 cursor-pointer"
+                                    class="pos-quick-btn exact"
                                 >
                                     Uang Pas (Rp {{ number_format($this->totalAmount, 0, ',', '.') }})
                                 </button>
                                 <button
                                     type="button"
                                     wire:click="setQuickCash(10000)"
-                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                    class="pos-quick-btn"
                                 >
                                     10.000
                                 </button>
                                 <button
                                     type="button"
                                     wire:click="setQuickCash(20000)"
-                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                    class="pos-quick-btn"
                                 >
                                     20.000
                                 </button>
                                 <button
                                     type="button"
                                     wire:click="setQuickCash(50000)"
-                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                    class="pos-quick-btn"
                                 >
                                     50.000
                                 </button>
                                 <button
                                     type="button"
                                     wire:click="setQuickCash(100000)"
-                                    class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer"
+                                    class="pos-quick-btn"
                                 >
                                     100.000
                                 </button>
                             </div>
 
                             {{-- Kalkulasi Kembalian --}}
-                            <div class="p-3 bg-gray-50 dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs">
-                                <span class="font-medium text-gray-600 dark:text-gray-300">Kembalian:</span>
-                                <span class="text-base font-black {{ $this->changeAmount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500' }} font-mono">
+                            <div class="pos-change-box">
+                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--pos-text-secondary);">Kembalian:</span>
+                                <span style="font-size: 1.125rem; font-weight: 900; font-family: monospace; color: {{ $this->changeAmount >= 0 ? 'var(--pos-success)' : 'var(--pos-danger)' }};">
                                     Rp {{ number_format($this->changeAmount, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
                     @else
                         {{-- Info QRIS / Transfer --}}
-                        <div class="p-3.5 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800 text-xs text-blue-800 dark:text-blue-300 space-y-1">
-                            <p class="font-bold">Pembayaran Otomatis Uang Pas</p>
-                            <p class="text-[11px] opacity-90">
-                                Transaksi akan langsung dicatat lunas sejumlah <strong>Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</strong> tanpa kembalian.
-                            </p>
+                        <div style="padding: 0.875rem 1rem; border-radius: 0.75rem; background: var(--pos-info-bg); border: 1px solid rgba(37, 99, 235, 0.25); color: var(--pos-info); font-size: 0.75rem;">
+                            <div style="font-weight: 800; margin-bottom: 0.2rem;">Pembayaran Otomatis Uang Pas</div>
+                            <div style="font-size: 0.7rem; opacity: 0.9;">
+                                Transaksi akan langsung dicatat lunas sejumlah <strong>Rp {{ number_format($this->totalAmount, 0, ',', '.') }}</strong> tanpa uang kembalian.
+                            </div>
                         </div>
                     @endif
                 </div>
 
                 {{-- Footer Modal --}}
-                <div class="p-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-2">
+                <div class="pos-modal-foot">
                     <button
                         type="button"
                         wire:click="closePaymentModal"
-                        class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
+                        class="pos-btn-secondary"
                     >
                         Batal
                     </button>
                     <button
                         type="button"
                         wire:click="checkout"
-                        class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+                        class="pos-btn-primary"
                     >
-                        <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
+                        <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                         Konfirmasi Pembayaran
@@ -545,40 +1173,42 @@
 
     {{-- ================= MODAL TRANSAKSI SUKSES & NOTA ================= --}}
     @if ($showSuccessModal && $lastOrder)
-        <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-xs sm:max-w-sm w-full shadow-2xl border border-gray-200 dark:border-gray-800 p-4 space-y-3 text-center animate-in fade-in zoom-in-95 duration-150">
-                <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
-                    <svg class="pos-icon text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+        <div class="pos-modal-overlay">
+            <div class="pos-modal-card" style="max-width: 360px; text-align: center; padding: 1.25rem;">
+                <div style="width: 2.75rem; height: 2.75rem; border-radius: 9999px; background: var(--pos-success-bg); color: var(--pos-success); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto;">
+                    <svg class="pos-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--pos-success);">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
 
                 <div>
-                    <h3 class="text-base font-black text-gray-900 dark:text-gray-100">
+                    <h3 style="font-size: 1.125rem; font-weight: 900; color: var(--pos-text-primary); margin: 0;">
                         Transaksi Sukses!
                     </h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                        Nota: <span class="font-bold text-gray-800 dark:text-gray-200">{{ $lastOrder->order_number }}</span>
+                    <p style="font-size: 0.75rem; color: var(--pos-text-muted); margin: 0.25rem 0 0.75rem 0;">
+                        Nota: <strong style="color: var(--pos-text-primary);">{{ $lastOrder->order_number }}</strong>
                     </p>
                 </div>
 
                 {{-- Preview Struk Visual Thermal --}}
-                <div class="p-2.5 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-left overflow-hidden">
+                <div style="padding: 0.625rem; background: var(--pos-bg-subtle); border-radius: 0.75rem; border: 1.5px dashed var(--pos-border); text-align: left; overflow: hidden; margin-bottom: 1rem;">
                     @include('filament.pages.partials.receipt', ['order' => $lastOrder])
                 </div>
 
-                <div class="flex items-center gap-2 pt-1">
+                <div style="display: flex; gap: 0.5rem;">
                     <button
                         type="button"
                         wire:click="printLastReceipt"
-                        class="flex-1 py-2 px-3 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold text-xs transition flex items-center justify-center gap-1 cursor-pointer"
+                        class="pos-btn-secondary"
+                        style="flex: 1; padding: 0.625rem 0.5rem;"
                     >
                         🖨️ Cetak Ulang
                     </button>
                     <button
                         type="button"
                         wire:click="closeSuccessModal"
-                        class="flex-1 py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition cursor-pointer"
+                        class="pos-btn-primary"
+                        style="flex: 1; padding: 0.625rem 0.5rem; justify-content: center;"
                     >
                         Selesai (Baru)
                     </button>
