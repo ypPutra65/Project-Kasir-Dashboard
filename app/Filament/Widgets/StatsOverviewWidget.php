@@ -5,13 +5,17 @@ namespace App\Filament\Widgets;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Filament\Support\Icons\Heroicon;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class StatsOverviewWidget extends BaseWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?int $sort = 1;
 
     /**
@@ -21,56 +25,98 @@ class StatsOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        // 1. Total Omset Hari Ini vs Kemarin
-        $todayRevenue = (float) Order::today()->paid()->sum('total_amount');
-        $yesterdayRevenue = (float) Order::whereDate('ordered_at', Carbon::yesterday())->paid()->sum('total_amount');
+        $startDate = ! empty($this->pageFilters['startDate']) ? Carbon::parse($this->pageFilters['startDate'])->startOfDay() : null;
+        $endDate = ! empty($this->pageFilters['endDate']) ? Carbon::parse($this->pageFilters['endDate'])->endOfDay() : null;
 
-        $revenueDiff = $todayRevenue - $yesterdayRevenue;
-        $revenueTrendIcon = $revenueDiff >= 0 ? Heroicon::OutlinedArrowTrendingUp : Heroicon::OutlinedArrowTrendingDown;
-        $revenueTrendColor = $revenueDiff >= 0 ? 'success' : 'danger';
-        $revenueDescription = $yesterdayRevenue > 0
-            ? ($revenueDiff >= 0 ? '+' : '') . 'Rp ' . number_format($revenueDiff, 0, ',', '.') . ' vs kemarin'
-            : 'Rekap transaksi hari ini';
+        $isFiltered = ($startDate !== null) || ($endDate !== null);
+        $isToday = (! $isFiltered) || ($startDate && $endDate && $startDate->isToday() && $endDate->isToday());
 
-        // 2. Uang Kas Fisik di Laci (Metode Cash)
-        $cashDrawer = (float) Order::today()
+        // Scope filter helper
+        $applyDateFilter = function (Builder $query) use ($startDate, $endDate, $isFiltered) {
+            if ($isFiltered) {
+                if ($startDate) {
+                    $query->where('ordered_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('ordered_at', '<=', $endDate);
+                }
+            } else {
+                $query->today();
+            }
+        };
+
+        // 1. Revenue
+        $revenue = (float) Order::query()
             ->paid()
-            ->where('payment_method', 'cash')
+            ->where($applyDateFilter)
             ->sum('total_amount');
 
-        $cashCount = Order::today()
+        // Dynamic Label & Subtext
+        if ($isToday) {
+            $periodLabel = 'Hari Ini';
+            $yesterdayRevenue = (float) Order::whereDate('ordered_at', Carbon::yesterday())->paid()->sum('total_amount');
+            $revenueDiff = $revenue - $yesterdayRevenue;
+            $revenueTrendIcon = $revenueDiff >= 0 ? Heroicon::OutlinedArrowTrendingUp : Heroicon::OutlinedArrowTrendingDown;
+            $revenueTrendColor = $revenueDiff >= 0 ? 'success' : 'danger';
+            $revenueDescription = $yesterdayRevenue > 0
+                ? ($revenueDiff >= 0 ? '+' : '') . 'Rp ' . number_format($revenueDiff, 0, ',', '.') . ' vs kemarin'
+                : 'Rekap transaksi hari berjalan';
+        } else {
+            $formattedStart = $startDate ? $startDate->translatedFormat('d M Y') : 'Awal';
+            $formattedEnd = $endDate ? $endDate->translatedFormat('d M Y') : 'Sekarang';
+            $periodLabel = ($startDate && $endDate && $startDate->isSameDay($endDate))
+                ? $startDate->translatedFormat('d M Y')
+                : "{$formattedStart} - {$formattedEnd}";
+            $revenueTrendIcon = Heroicon::OutlinedCalendar;
+            $revenueTrendColor = 'primary';
+            $revenueDescription = "Riwayat: {$periodLabel}";
+        }
+
+        // 2. Cash Drawer
+        $cashDrawer = (float) Order::query()
             ->paid()
             ->where('payment_method', 'cash')
-            ->count();
-
-        // 3. Uang Masuk Non-Tunai (QRIS & Transfer)
-        $nonCashRevenue = (float) Order::today()
-            ->paid()
-            ->whereIn('payment_method', ['qris', 'transfer'])
+            ->where($applyDateFilter)
             ->sum('total_amount');
 
-        $nonCashCount = Order::today()
+        $cashCount = Order::query()
             ->paid()
-            ->whereIn('payment_method', ['qris', 'transfer'])
+            ->where('payment_method', 'cash')
+            ->where($applyDateFilter)
             ->count();
 
-        // 4. Estimasi Laba Kotor: Total Omset - Total HPP (Qty Terjual * HPP)
-        $todayTotalHpp = (float) OrderItem::whereHas('order', function ($query) {
-            $query->today()->paid();
+        // 3. Non-Cash Revenue
+        $nonCashRevenue = (float) Order::query()
+            ->paid()
+            ->whereIn('payment_method', ['qris', 'transfer'])
+            ->where($applyDateFilter)
+            ->sum('total_amount');
+
+        $nonCashCount = Order::query()
+            ->paid()
+            ->whereIn('payment_method', ['qris', 'transfer'])
+            ->where($applyDateFilter)
+            ->count();
+
+        // 4. Gross Profit
+        $totalHpp = (float) OrderItem::whereHas('order', function (Builder $query) use ($applyDateFilter) {
+            $query->paid()->where($applyDateFilter);
         })->sum(DB::raw('quantity * cost_price'));
 
-        $grossProfit = $todayRevenue - $todayTotalHpp;
-        $profitMargin = $todayRevenue > 0 ? round(($grossProfit / $todayRevenue) * 100, 1) : 0.0;
+        $grossProfit = $revenue - $totalHpp;
+        $profitMargin = $revenue > 0 ? round(($grossProfit / $revenue) * 100, 1) : 0.0;
+
+        $omsetTitle = $isToday ? 'Total Omset Hari Ini' : "Total Omset ({$periodLabel})";
 
         return [
-            Stat::make('Total Omset Hari Ini', 'Rp ' . number_format($todayRevenue, 0, ',', '.'))
+            Stat::make($omsetTitle, 'Rp ' . number_format($revenue, 0, ',', '.'))
                 ->description($revenueDescription)
                 ->descriptionIcon($revenueTrendIcon)
                 ->color($revenueTrendColor)
                 ->chart([
-                    max(1, (int) round($yesterdayRevenue / 1000)),
-                    max(1, (int) round(($yesterdayRevenue + $todayRevenue) / 2000)),
-                    max(1, (int) round($todayRevenue / 1000)),
+                    max(1, (int) round($revenue / 3000)),
+                    max(1, (int) round($revenue / 1500)),
+                    max(1, (int) round($revenue / 1000)),
                 ]),
 
             Stat::make('Uang Kas di Laci', 'Rp ' . number_format($cashDrawer, 0, ',', '.'))
@@ -90,7 +136,7 @@ class StatsOverviewWidget extends BaseWidget
                 ->descriptionIcon(Heroicon::OutlinedChartBar)
                 ->color('warning')
                 ->chart([
-                    max(1, (int) round($todayTotalHpp / 1000)),
+                    max(1, (int) round($totalHpp / 1000)),
                     max(1, (int) round($grossProfit / 1000)),
                 ]),
         ];

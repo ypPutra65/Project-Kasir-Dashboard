@@ -7,11 +7,15 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class TopSellingProductsWidget extends BaseWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?int $sort = 3;
 
     protected int | string | array $columnSpan = 'full';
@@ -20,24 +24,44 @@ class TopSellingProductsWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
+        $startDate = ! empty($this->pageFilters['startDate']) ? Carbon::parse($this->pageFilters['startDate'])->startOfDay() : null;
+        $endDate = ! empty($this->pageFilters['endDate']) ? Carbon::parse($this->pageFilters['endDate'])->endOfDay() : null;
+
+        $applyDateFilter = function (Builder $query) use ($startDate, $endDate) {
+            $query->paid();
+            if ($startDate || $endDate) {
+                if ($startDate) {
+                    $query->where('ordered_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('ordered_at', '<=', $endDate);
+                }
+            } else {
+                $query->today();
+            }
+        };
+
+        $isFiltered = ($startDate !== null) || ($endDate !== null);
+        $isToday = (! $isFiltered) || ($startDate && $endDate && $startDate->isToday() && $endDate->isToday());
+
         return $table
-            ->heading('Top 5 Menu Terlaris Hari Ini')
-            ->description('Peringkat menu dengan volume penjualan tertinggi hari berjalan.')
+            ->heading($isToday ? 'Top 5 Menu Terlaris Hari Ini' : 'Top 5 Menu Terlaris')
+            ->description('Peringkat menu dengan volume penjualan tertinggi pada periode operasional yang dipilih.')
             ->query(
                 Product::query()
                     ->with('category')
-                    ->withSum(['orderItems as total_sold' => function (Builder $query) {
-                        $query->whereHas('order', fn (Builder $q) => $q->today()->paid());
+                    ->withSum(['orderItems as total_sold' => function (Builder $query) use ($applyDateFilter) {
+                        $query->whereHas('order', $applyDateFilter);
                     }], 'quantity')
-                    ->withSum(['orderItems as total_revenue' => function (Builder $query) {
-                        $query->whereHas('order', fn (Builder $q) => $q->today()->paid());
+                    ->withSum(['orderItems as total_revenue' => function (Builder $query) use ($applyDateFilter) {
+                        $query->whereHas('order', $applyDateFilter);
                     }], 'subtotal')
-                    ->whereHas('orderItems.order', fn (Builder $q) => $q->today()->paid())
+                    ->whereHas('orderItems.order', $applyDateFilter)
                     ->orderByDesc('total_sold')
                     ->limit(5)
             )
             ->paginated(false)
-            ->emptyStateHeading('Belum Ada Penjualan Hari Ini')
+            ->emptyStateHeading($isToday ? 'Belum Ada Penjualan Hari Ini' : 'Belum Ada Penjualan Pada Periode Ini')
             ->emptyStateDescription('Menu terlaris akan otomatis terdata setelah ada transaksi kasir yang selesai dibayar.')
             ->emptyStateIcon(Heroicon::OutlinedSparkles)
             ->columns([

@@ -4,15 +4,18 @@ namespace App\Filament\Widgets;
 
 use App\Models\Order;
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Carbon;
 
 class HourlySalesChart extends ChartWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?int $sort = 2;
 
     protected ?string $heading = 'Grafik Penjualan Per Jam (09:00 - 23:00)';
 
-    protected ?string $description = 'Pemetaan omset penjualan per jam hari ini untuk analisis jam sibuk (peak hours).';
+    protected ?string $description = 'Pemetaan omset penjualan per jam untuk analisis jam sibuk (peak hours).';
 
     protected ?string $pollingInterval = '15s';
 
@@ -22,10 +25,23 @@ class HourlySalesChart extends ChartWidget
 
     protected function getData(): array
     {
-        $orders = Order::today()
-            ->paid()
-            ->select(['id', 'ordered_at', 'total_amount'])
-            ->get();
+        $startDate = ! empty($this->pageFilters['startDate']) ? Carbon::parse($this->pageFilters['startDate'])->startOfDay() : null;
+        $endDate = ! empty($this->pageFilters['endDate']) ? Carbon::parse($this->pageFilters['endDate'])->endOfDay() : null;
+
+        $ordersQuery = Order::query()->paid()->select(['id', 'ordered_at', 'total_amount']);
+
+        if ($startDate || $endDate) {
+            if ($startDate) {
+                $ordersQuery->where('ordered_at', '>=', $startDate);
+            }
+            if ($endDate) {
+                $ordersQuery->where('ordered_at', '<=', $endDate);
+            }
+        } else {
+            $ordersQuery->today();
+        }
+
+        $orders = $ordersQuery->get();
 
         $hourlyData = [];
         $labels = [];
