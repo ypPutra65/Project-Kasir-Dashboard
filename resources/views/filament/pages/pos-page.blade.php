@@ -49,18 +49,22 @@
         .pos-icon-lg { width: 1.75rem !important; height: 1.75rem !important; min-width: 1.75rem !important; max-width: 1.75rem !important; flex-shrink: 0; display: inline-block; }
         .pos-icon-xl { width: 2.5rem !important; height: 2.5rem !important; min-width: 2.5rem !important; max-width: 2.5rem !important; flex-shrink: 0; display: inline-block; }
 
-        /* POS Root Grid Layout */
+        /* POS Root Grid Layout (Mobile-First) */
         .pos-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.875rem;
             width: 100%;
             margin-top: -0.5rem;
+            padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
         }
         @media (min-width: 1024px) {
             .pos-layout {
+                display: grid;
                 grid-template-columns: minmax(0, 1.9fr) minmax(360px, 1.1fr);
                 align-items: start;
+                gap: 1.25rem;
+                padding-bottom: 1rem;
             }
         }
 
@@ -68,12 +72,19 @@
         .pos-toolbar {
             background: var(--pos-bg-card);
             border: 1px solid var(--pos-border);
-            border-radius: 1rem;
-            padding: 1rem;
+            border-radius: 0.875rem;
+            padding: 0.75rem;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.625rem;
             box-shadow: var(--pos-shadow);
+        }
+        @media (min-width: 640px) {
+            .pos-toolbar {
+                border-radius: 1rem;
+                padding: 1rem;
+                gap: 0.75rem;
+            }
         }
 
         .pos-search-box {
@@ -95,7 +106,7 @@
         .pos-search-input {
             width: 100%;
             height: 2.75rem;
-            padding: 0 3.25rem 0 2.75rem;
+            padding: 0 1rem 0 2.5rem;
             border-radius: 0.75rem;
             border: 1.5px solid var(--pos-border);
             background: var(--pos-bg-input);
@@ -105,12 +116,18 @@
             outline: none;
             transition: all 0.2s ease;
         }
+        @media (min-width: 640px) {
+            .pos-search-input {
+                padding: 0 3.25rem 0 2.75rem;
+            }
+        }
         .pos-search-input:focus {
             border-color: var(--pos-primary);
             box-shadow: 0 0 0 3px var(--pos-primary-light);
         }
 
         .pos-search-kbd {
+            display: none;
             position: absolute;
             right: 0.75rem;
             padding: 0.2rem 0.45rem;
@@ -123,27 +140,43 @@
             border: 1px solid var(--pos-border);
             pointer-events: none;
         }
+        @media (min-width: 640px) {
+            .pos-search-kbd {
+                display: block;
+            }
+        }
 
         .pos-cat-tabs {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.35rem;
             overflow-x: auto;
             padding-bottom: 0.25rem;
-            scrollbar-width: thin;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .pos-cat-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .pos-cat-btn {
-            padding: 0.45rem 1rem;
-            border-radius: 0.625rem;
+            padding: 0.45rem 0.95rem;
+            min-height: 2.25rem;
+            border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
             border: 1.5px solid transparent;
             cursor: pointer;
             white-space: nowrap;
+            flex-shrink: 0;
             transition: all 0.15s ease;
             background: var(--pos-bg-input);
             color: var(--pos-text-secondary);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
         }
         .pos-cat-btn:hover {
             background: var(--pos-border);
@@ -157,15 +190,21 @@
             box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
         }
 
-        /* Products Grid */
+        /* Products Grid (Responsive Mobile-First) */
         .pos-grid-menu {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.875rem;
+            gap: 0.5rem;
+        }
+        @media (min-width: 480px) {
+            .pos-grid-menu {
+                gap: 0.75rem;
+            }
         }
         @media (min-width: 640px) {
             .pos-grid-menu {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.875rem;
             }
         }
         @media (min-width: 1280px) {
@@ -178,8 +217,8 @@
         .pos-card {
             background: var(--pos-bg-card);
             border: 1.5px solid var(--pos-border);
-            border-radius: 1rem;
-            padding: 0.875rem;
+            border-radius: 0.875rem;
+            padding: 0.625rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -188,11 +227,22 @@
             position: relative;
             user-select: none;
             box-shadow: var(--pos-shadow);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .pos-card:hover {
-            border-color: var(--pos-primary);
-            transform: translateY(-2px);
-            box-shadow: var(--pos-shadow-lg);
+        .pos-card:active {
+            transform: scale(0.97);
+        }
+        @media (min-width: 640px) {
+            .pos-card {
+                border-radius: 1rem;
+                padding: 0.875rem;
+            }
+            .pos-card:hover {
+                border-color: var(--pos-primary);
+                transform: translateY(-2px);
+                box-shadow: var(--pos-shadow-lg);
+            }
         }
         .pos-card.in-cart {
             border-color: var(--pos-primary);
@@ -208,15 +258,22 @@
 
         .pos-card-img-wrap {
             width: 100%;
-            height: 105px;
-            border-radius: 0.75rem;
+            height: 90px;
+            border-radius: 0.625rem;
             overflow: hidden;
             background: var(--pos-bg-input);
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 0.625rem;
+            margin-bottom: 0.5rem;
+        }
+        @media (min-width: 640px) {
+            .pos-card-img-wrap {
+                height: 105px;
+                border-radius: 0.75rem;
+                margin-bottom: 0.625rem;
+            }
         }
 
         .pos-card-img {
@@ -231,14 +288,14 @@
 
         .pos-qty-badge {
             position: absolute;
-            top: 0.375rem;
-            right: 0.375rem;
+            top: 0.35rem;
+            right: 0.35rem;
             background: var(--pos-primary);
             color: #ffffff;
             font-size: 0.6875rem;
             font-weight: 800;
-            width: 1.4rem;
-            height: 1.4rem;
+            width: 1.35rem;
+            height: 1.35rem;
             border-radius: 9999px;
             display: flex;
             align-items: center;
@@ -255,14 +312,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 0.75rem;
+            border-radius: 0.625rem;
         }
         .pos-out-text {
             background: var(--pos-danger);
             color: #ffffff;
             font-size: 0.6875rem;
             font-weight: 900;
-            padding: 0.2rem 0.5rem;
+            padding: 0.2rem 0.45rem;
             border-radius: 0.375rem;
             letter-spacing: 0.06em;
         }
@@ -272,10 +329,10 @@
             align-items: center;
             justify-content: space-between;
             gap: 0.25rem;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
         }
         .pos-card-cat {
-            font-size: 0.6875rem;
+            font-size: 0.65rem;
             color: var(--pos-text-muted);
             font-weight: 600;
             text-transform: uppercase;
@@ -285,9 +342,9 @@
             white-space: nowrap;
         }
         .pos-card-stock {
-            font-size: 0.6875rem;
+            font-size: 0.65rem;
             font-weight: 700;
-            padding: 0.1rem 0.35rem;
+            padding: 0.1rem 0.3rem;
             border-radius: 0.375rem;
             white-space: nowrap;
         }
@@ -300,19 +357,25 @@
             font-weight: 700;
             color: var(--pos-text-primary);
             line-height: 1.25;
-            margin: 0.15rem 0 0.4rem 0;
+            margin: 0.1rem 0 0.35rem 0;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 1;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            min-height: 2rem;
         }
 
         .pos-card-price {
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
             font-weight: 900;
             color: var(--pos-primary);
             font-family: monospace;
             letter-spacing: -0.01em;
+        }
+        @media (min-width: 640px) {
+            .pos-card-price {
+                font-size: 0.875rem;
+            }
         }
 
         /* Right Side: Cart Panel */
@@ -320,14 +383,20 @@
             background: var(--pos-bg-card);
             border: 1px solid var(--pos-border);
             border-radius: 1rem;
-            position: sticky;
-            top: 1rem;
-            height: calc(100vh - 6.5rem);
-            max-height: calc(100vh - 6.5rem);
             display: flex;
             flex-direction: column;
             box-shadow: var(--pos-shadow);
             overflow: hidden;
+            height: auto;
+            max-height: 480px;
+        }
+        @media (min-width: 1024px) {
+            .pos-cart-panel {
+                position: sticky;
+                top: 1rem;
+                height: calc(100vh - 6.5rem);
+                max-height: calc(100vh - 6.5rem);
+            }
         }
 
         .pos-cart-header {
@@ -440,11 +509,12 @@
             border: none;
             color: var(--pos-text-muted);
             cursor: pointer;
-            padding: 0.15rem;
+            padding: 0.25rem;
             border-radius: 0.25rem;
             transition: color 0.15s;
             display: flex;
             align-items: center;
+            -webkit-tap-highlight-color: transparent;
         }
         .pos-item-del-btn:hover {
             color: var(--pos-danger);
@@ -461,37 +531,40 @@
         .pos-qty-control {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.2rem;
             background: var(--pos-bg-card);
             border: 1px solid var(--pos-border);
             border-radius: 0.5rem;
             padding: 0.1rem;
         }
         .pos-qty-btn {
-            width: 1.4rem;
-            height: 1.4rem;
+            width: 1.85rem;
+            height: 1.85rem;
             border: none;
             background: transparent;
             border-radius: 0.375rem;
             font-weight: 800;
-            font-size: 0.75rem;
+            font-size: 0.9375rem;
             color: var(--pos-text-primary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .pos-qty-btn:hover {
+        .pos-qty-btn:hover,
+        .pos-qty-btn:active {
             background: var(--pos-bg-input);
         }
         .pos-qty-number,
         .pos-qty-input {
-            width: 2.25rem;
-            height: 1.4rem;
+            width: 2.35rem;
+            height: 1.85rem;
             text-align: center;
             font-weight: 800;
-            font-size: 0.75rem;
+            font-size: 0.875rem;
             color: var(--pos-text-primary);
             font-family: monospace;
             background: transparent;
@@ -562,10 +635,11 @@
 
         .pos-checkout-btn {
             width: 100%;
+            min-height: 2.75rem;
             padding: 0.75rem 1rem;
             border-radius: 0.75rem;
             border: none;
-            font-size: 0.8125rem;
+            font-size: 0.875rem;
             font-weight: 800;
             color: #ffffff;
             background: var(--pos-primary);
@@ -576,6 +650,8 @@
             gap: 0.5rem;
             transition: all 0.15s ease;
             box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.25);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         .pos-checkout-btn:hover {
             background: var(--pos-primary-hover);
@@ -590,6 +666,7 @@
             box-shadow: none;
         }
         .pos-checkout-kbd {
+            display: none;
             background: rgba(255, 255, 255, 0.25);
             color: #ffffff;
             font-size: 0.6875rem;
@@ -598,43 +675,180 @@
             padding: 0.15rem 0.35rem;
             border-radius: 0.375rem;
         }
+        @media (min-width: 640px) {
+            .pos-checkout-kbd {
+                display: inline-block;
+            }
+        }
 
-        /* Modal Styles */
+        /* Floating Sticky Mobile Bottom Action Bar (<1024px) */
+        .pos-mobile-bar {
+            display: flex;
+            position: fixed;
+            bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+            left: 0.75rem;
+            right: 0.75rem;
+            z-index: 50;
+            background: #18181b;
+            color: #ffffff;
+            border: 1.5px solid var(--pos-primary);
+            border-radius: 1rem;
+            padding: 0.625rem 0.875rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(217, 119, 6, 0.35);
+            backdrop-filter: blur(12px);
+            animation: posSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes posSlideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @media (min-width: 1024px) {
+            .pos-mobile-bar {
+                display: none !important;
+            }
+        }
+
+        .pos-mobile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            cursor: pointer;
+        }
+        .pos-mobile-qty {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: var(--pos-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .pos-mobile-total {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #ffffff;
+            font-family: monospace;
+            letter-spacing: -0.01em;
+        }
+
+        .pos-mobile-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .pos-mobile-btn-cart {
+            padding: 0.5rem 0.75rem;
+            min-height: 2.25rem;
+            border-radius: 0.625rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .pos-mobile-btn-pay {
+            padding: 0.5rem 1rem;
+            min-height: 2.25rem;
+            border-radius: 0.625rem;
+            border: none;
+            background: var(--pos-primary);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Modal Styles: Bottom Sheet on Mobile, Centered on Desktop */
         .pos-modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(4px);
             z-index: 9999;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            padding: 1rem;
+            padding: 0;
+        }
+        @media (min-width: 640px) {
+            .pos-modal-overlay {
+                align-items: center;
+                padding: 1rem;
+            }
         }
         .pos-modal-card {
             background: var(--pos-bg-card);
             border: 1px solid var(--pos-border);
-            border-radius: 1.25rem;
+            border-radius: 1.25rem 1.25rem 0 0;
             width: 100%;
-            max-width: 440px;
+            max-width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
             box-shadow: var(--pos-shadow-lg);
             overflow: hidden;
+            animation: posBottomSheet 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .pos-modal-drag-handle {
+            width: 2.5rem;
+            height: 0.25rem;
+            background: var(--pos-border);
+            border-radius: 9999px;
+            margin: 0.5rem auto 0 auto;
+        }
+        @media (min-width: 640px) {
+            .pos-modal-drag-handle {
+                display: none;
+            }
+        }
+        @keyframes posBottomSheet {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        @media (min-width: 640px) {
+            .pos-modal-card {
+                border-radius: 1.25rem;
+                max-width: 440px;
+                animation: none;
+            }
+        }
+
         .pos-modal-head {
-            padding: 1rem 1.25rem;
+            padding: 0.875rem 1.25rem;
             border-bottom: 1px solid var(--pos-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .pos-modal-body {
-            padding: 1.25rem;
+            padding: 1.125rem;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.875rem;
+            overflow-y: auto;
+        }
+        @media (min-width: 640px) {
+            .pos-modal-body {
+                padding: 1.25rem;
+                gap: 1rem;
+            }
         }
         .pos-modal-foot {
             padding: 0.875rem 1.25rem;
+            padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
             border-top: 1px solid var(--pos-border);
             background: var(--pos-bg-subtle);
             display: flex;
@@ -649,21 +863,26 @@
             gap: 0.5rem;
         }
         .pos-method-card {
-            padding: 0.625rem 0.5rem;
+            padding: 0.75rem 0.35rem;
+            min-height: 3.5rem;
             border-radius: 0.75rem;
             border: 1.5px solid var(--pos-border);
             background: var(--pos-bg-input);
             color: var(--pos-text-primary);
-            font-size: 0.75rem;
+            font-size: 0.8125rem;
             font-weight: 700;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 0.2rem;
             transition: all 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .pos-method-card:hover {
+        .pos-method-card:hover,
+        .pos-method-card:active {
             border-color: var(--pos-primary);
         }
         .pos-method-card.active {
@@ -692,29 +911,39 @@
         }
 
         .pos-quick-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 0.35rem;
         }
         .pos-quick-btn {
-            padding: 0.3rem 0.6rem;
+            padding: 0.55rem 0.25rem;
+            min-height: 2.5rem;
             border-radius: 0.5rem;
             border: 1px solid var(--pos-border);
             background: var(--pos-bg-input);
             color: var(--pos-text-primary);
-            font-size: 0.6875rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.15s;
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .pos-quick-btn:hover {
+        .pos-quick-btn:hover,
+        .pos-quick-btn:active {
             background: var(--pos-border);
         }
         .pos-quick-btn.exact {
+            grid-column: 1 / -1;
             background: var(--pos-primary-light);
             color: var(--pos-primary);
             border-color: var(--pos-primary);
             font-weight: 800;
+            padding: 0.625rem;
         }
 
         .pos-change-box {
@@ -729,6 +958,7 @@
 
         .pos-btn-secondary {
             padding: 0.5rem 1rem;
+            min-height: 2.25rem;
             border-radius: 0.625rem;
             border: 1px solid var(--pos-border);
             background: var(--pos-bg-card);
@@ -737,14 +967,21 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        .pos-btn-secondary:hover {
+        .pos-btn-secondary:hover,
+        .pos-btn-secondary:active {
             background: var(--pos-bg-input);
             color: var(--pos-text-primary);
         }
 
         .pos-btn-primary {
             padding: 0.5rem 1.125rem;
+            min-height: 2.25rem;
             border-radius: 0.625rem;
             border: none;
             background: var(--pos-primary);
@@ -753,11 +990,15 @@
             font-weight: 800;
             cursor: pointer;
             transition: all 0.15s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.35rem;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .pos-btn-primary:hover {
+        .pos-btn-primary:hover,
+        .pos-btn-primary:active {
             background: var(--pos-primary-hover);
         }
 
@@ -948,7 +1189,7 @@
 
         {{-- ================= SISI KANAN: KERANJANG PESANAN ================= --}}
         <div>
-            <div class="pos-cart-panel">
+            <div id="pos-cart-panel" class="pos-cart-panel">
                 {{-- Header Keranjang --}}
                 <div class="pos-cart-header">
                     <div class="pos-cart-title-box">
@@ -1081,10 +1322,51 @@
         </div>
     </div>
 
+    {{-- Floating Sticky Mobile Bottom Action Bar (<1024px) --}}
+    @if ($this->totalItems > 0)
+        <div class="pos-mobile-bar">
+            <div class="pos-mobile-info" onclick="document.getElementById('pos-cart-panel').scrollIntoView({behavior: 'smooth'})">
+                <div class="pos-mobile-qty">
+                    <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <span>{{ $this->totalItems }} Porsi Pesanan</span>
+                </div>
+                <div class="pos-mobile-total">
+                    Rp {{ number_format($this->totalAmount, 0, ',', '.') }}
+                </div>
+            </div>
+
+            <div class="pos-mobile-actions">
+                <button
+                    type="button"
+                    onclick="document.getElementById('pos-cart-panel').scrollIntoView({behavior: 'smooth'})"
+                    class="pos-mobile-btn-cart"
+                >
+                    <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                    <span>Rincian</span>
+                </button>
+                <button
+                    type="button"
+                    wire:click="openPaymentModal"
+                    class="pos-mobile-btn-pay"
+                >
+                    <span>Bayar</span>
+                    <svg class="pos-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    @endif
+
     {{-- ================= MODAL PEMBAYARAN KASIR ================= --}}
     @if ($showPaymentModal)
         <div class="pos-modal-overlay">
             <div class="pos-modal-card">
+                <div class="pos-modal-drag-handle"></div>
                 {{-- Header Modal --}}
                 <div class="pos-modal-head">
                     <div>
@@ -1099,7 +1381,7 @@
                         type="button"
                         wire:click="closePaymentModal"
                         class="pos-btn-secondary"
-                        style="padding: 0.25rem 0.5rem;"
+                        style="padding: 0.25rem 0.5rem; min-height: 2rem;"
                     >
                         ✕
                     </button>
@@ -1263,7 +1545,7 @@
                 </div>
 
                 {{-- Preview Struk Visual Thermal --}}
-                <div id="pos-modal-receipt-preview" style="padding: 0.625rem; background: var(--pos-bg-subtle); border-radius: 0.75rem; border: 1.5px dashed var(--pos-border); text-align: left; overflow: hidden; margin-bottom: 1rem;">
+                <div id="pos-modal-receipt-preview" style="padding: 0.625rem; background: var(--pos-bg-subtle); border-radius: 0.75rem; border: 1.5px dashed var(--pos-border); text-align: left; overflow-y: auto; max-height: 240px; margin-bottom: 1rem;">
                     @include('filament.pages.partials.receipt', ['order' => $lastOrder])
                 </div>
 
