@@ -27,20 +27,26 @@ class Dashboard extends BaseDashboard
         return $schema
             ->components([
                 Section::make('Filter Periode Operasional')
-                    ->description('Pilih tanggal untuk melihat riwayat omset & penjualan hari sebelumnya, atau kosongkan untuk otomatis memantau hari berjalan.')
+                    ->description('Pilih tanggal untuk melihat riwayat omset & penjualan (kosongkan untuk otomatis memantau hari ini).')
                     ->icon(Heroicon::OutlinedCalendarDays)
                     ->compact()
-                    ->columns(2)
+                    ->columnSpanFull()
+                    ->columns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ])
                     ->components([
                         DatePicker::make('startDate')
                             ->label('Dari Tanggal')
                             ->placeholder('Pilih tanggal awal')
+                            ->prefixIcon(Heroicon::OutlinedCalendar)
                             ->native(false)
                             ->displayFormat('d M Y')
                             ->maxDate(now()),
                         DatePicker::make('endDate')
                             ->label('Sampai Tanggal')
                             ->placeholder('Pilih tanggal akhir')
+                            ->prefixIcon(Heroicon::OutlinedCalendar)
                             ->native(false)
                             ->displayFormat('d M Y')
                             ->maxDate(now()),
