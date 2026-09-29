@@ -352,5 +352,67 @@ class PosPageTest extends TestCase
         $this->assertEquals(0, \App\Models\Order::count());
         $this->assertEquals(0, \App\Models\OrderItem::count());
     }
+
+    /**
+     * Test checkout dispatches print-receipt event and manual reprint works.
+     */
+    public function test_checkout_and_reprint_dispatches_print_receipt_event(): void
+    {
+        Livewire::actingAs($this->owner)
+            ->test(PosPage::class)
+            ->call('addToCart', $this->lele->id)
+            ->call('openPaymentModal')
+            ->call('setExactCash')
+            ->call('checkout')
+            ->assertDispatched('print-receipt')
+            ->call('printLastReceipt')
+            ->assertDispatched('print-receipt');
+    }
+
+    /**
+     * Test thermal receipt blade view renders all required restaurant, order, and calculation information.
+     */
+    public function test_thermal_receipt_view_renders_accurate_order_data_and_totals(): void
+    {
+        $order = \App\Models\Order::create([
+            'order_number' => 'BL-20260929-0099',
+            'total_amount' => 23000.00,
+            'paid_amount' => 50000.00,
+            'change_amount' => 27000.00,
+            'payment_method' => 'cash',
+            'status' => 'paid',
+            'ordered_at' => now(),
+        ]);
+
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $this->lele->id,
+            'quantity' => 1,
+            'cost_price' => 10000.00,
+            'unit_price' => 18000.00,
+            'subtotal' => 18000.00,
+        ]);
+
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $this->esTeh->id,
+            'quantity' => 1,
+            'cost_price' => 1500.00,
+            'unit_price' => 5000.00,
+            'subtotal' => 5000.00,
+        ]);
+
+        $renderedHtml = view('filament.pages.partials.receipt', ['order' => $order->load('orderItems.product')])->render();
+
+        $this->assertStringContainsString('BUDHE LAMONGAN', $renderedHtml);
+        $this->assertStringContainsString('BL-20260929-0099', $renderedHtml);
+        $this->assertStringContainsString('Pecel Lele Goreng', $renderedHtml);
+        $this->assertStringContainsString('Es Teh Manis', $renderedHtml);
+        $this->assertStringContainsString('Rp 23.000', $renderedHtml);
+        $this->assertStringContainsString('Rp 50.000', $renderedHtml);
+        $this->assertStringContainsString('Rp 27.000', $renderedHtml);
+        $this->assertStringContainsString('Matur Nuwun sampun rawuh', $renderedHtml);
+    }
 }
+
 

@@ -1,5 +1,38 @@
 <x-filament-panels::page>
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 -mt-4">
+    {{-- CSS Khusus Printer Thermal 58mm / 80mm --}}
+    <style>
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #thermal-receipt-print-area, #thermal-receipt-print-area * {
+                visibility: visible !important;
+            }
+            #thermal-receipt-print-area {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 58mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            @page {
+                size: 58mm auto;
+                margin: 0mm;
+            }
+        }
+    </style>
+
+    {{-- Area Print Thermal Struk (Tersembunyi di layar normal, tampil saat window.print) --}}
+    <div id="thermal-receipt-print-area" class="hidden print:block">
+        @if ($lastOrder)
+            @include('filament.pages.partials.receipt', ['order' => $lastOrder])
+        @endif
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 -mt-4 print:hidden">
         {{-- ================= SISI KIRI: KATALOG MENU & PENCARIAN (65% / 8 COLS) ================= --}}
         <div class="lg:col-span-7 xl:col-span-8 space-y-4">
             {{-- Toolbar: Kategori & Search --}}
@@ -272,7 +305,7 @@
                     <button
                         type="button"
                         wire:click="closePaymentModal"
-                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -352,35 +385,35 @@
                                     <button
                                         type="button"
                                         wire:click="setPaidAmount(10000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
                                     >
                                         10rb
                                     </button>
                                     <button
                                         type="button"
                                         wire:click="setPaidAmount(20000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
                                     >
                                         20rb
                                     </button>
                                     <button
                                         type="button"
                                         wire:click="setPaidAmount(50000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
                                     >
                                         50rb
                                     </button>
                                     <button
                                         type="button"
                                         wire:click="setPaidAmount(100000)"
-                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition"
+                                        class="py-1.5 px-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200 transition cursor-pointer"
                                     >
                                         100rb
                                     </button>
                                     <button
                                         type="button"
                                         wire:click="setExactCash"
-                                        class="py-1.5 px-2 bg-primary-100 hover:bg-primary-200 dark:bg-primary-950 dark:hover:bg-primary-900 rounded-lg text-xs font-black text-primary-700 dark:text-primary-300 transition"
+                                        class="py-1.5 px-2 bg-primary-100 hover:bg-primary-200 dark:bg-primary-950 dark:hover:bg-primary-900 rounded-lg text-xs font-black text-primary-700 dark:text-primary-300 transition cursor-pointer"
                                     >
                                         Pas
                                     </button>
@@ -437,54 +470,55 @@
     {{-- ================= MODAL TRANSAKSI SUKSES & NOTA ================= --}}
     @if ($showSuccessModal && $lastOrder)
         <div class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-5 text-center">
-                <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-sm w-full shadow-2xl border border-gray-200 dark:border-gray-800 p-5 space-y-4 text-center animate-in fade-in zoom-in-95 duration-150">
+                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full mx-auto flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
 
                 <div>
-                    <h3 class="text-xl font-black text-gray-900 dark:text-gray-100">
-                        Transaksi Berhasil!
+                    <h3 class="text-lg font-black text-gray-900 dark:text-gray-100">
+                        Transaksi Sukses!
                     </h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Nomor Nota: <span class="font-bold text-gray-800 dark:text-gray-200">{{ $lastOrder->order_number }}</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        Nota: <span class="font-bold text-gray-800 dark:text-gray-200">{{ $lastOrder->order_number }}</span>
                     </p>
                 </div>
 
-                {{-- Detail Nota Ringkas --}}
-                <div class="p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-left text-xs space-y-2">
-                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
-                        <span>Metode Pembayaran:</span>
-                        <span class="font-bold uppercase">{{ $lastOrder->payment_method }}</span>
-                    </div>
-                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
-                        <span>Total Tagihan:</span>
-                        <span class="font-bold">Rp {{ number_format((float) $lastOrder->total_amount, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
-                        <span>Nominal Bayar:</span>
-                        <span class="font-bold">Rp {{ number_format((float) $lastOrder->paid_amount, 0, ',', '.') }}</span>
-                    </div>
-                    @if ($lastOrder->payment_method === 'cash')
-                        <div class="flex justify-between text-emerald-600 font-bold border-t border-gray-200 dark:border-gray-700 pt-1.5">
-                            <span>Kembalian:</span>
-                            <span>Rp {{ number_format((float) $lastOrder->change_amount, 0, ',', '.') }}</span>
-                        </div>
-                    @endif
+                {{-- Preview Struk Visual Thermal --}}
+                <div class="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-left overflow-hidden">
+                    @include('filament.pages.partials.receipt', ['order' => $lastOrder])
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 pt-1">
+                    <button
+                        type="button"
+                        wire:click="printLastReceipt"
+                        class="flex-1 py-2.5 px-3 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                        🖨️ Cetak Ulang
+                    </button>
                     <button
                         type="button"
                         wire:click="closeSuccessModal"
-                        class="w-full py-2.5 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm transition cursor-pointer"
+                        class="flex-1 py-2.5 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs transition cursor-pointer"
                     >
-                        Selesai / Transaksi Baru
+                        Selesai (Baru)
                     </button>
                 </div>
             </div>
         </div>
     @endif
+
+    {{-- Script Trigger Otomatis window.print() --}}
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('print-receipt', () => {
+                setTimeout(() => {
+                    window.print();
+                }, 300);
+            });
+        });
+    </script>
 </x-filament-panels::page>

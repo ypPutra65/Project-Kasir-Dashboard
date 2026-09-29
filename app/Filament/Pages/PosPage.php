@@ -399,11 +399,21 @@ class PosPage extends Page
         $this->showPaymentModal = false;
         $this->showSuccessModal = true;
 
+        $this->dispatch('print-receipt');
+
         Notification::make()
             ->title('Transaksi Berhasil!')
             ->body("Nota {$order->order_number} berhasil dibayar.")
             ->success()
             ->send();
+    }
+
+    /**
+     * Memicu dialog cetak struk ulang dari modal.
+     */
+    public function printLastReceipt(): void
+    {
+        $this->dispatch('print-receipt');
     }
 
     /**
