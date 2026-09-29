@@ -739,26 +739,65 @@
         }
 
         /* Thermal Receipt Print Styles */
+        @media screen {
+            .pos-print-only {
+                display: none !important;
+            }
+        }
         @media print {
-            body * { visibility: hidden !important; }
-            #thermal-receipt-print-area, #thermal-receipt-print-area * { visibility: visible !important; }
-            #thermal-receipt-print-area {
-                position: fixed !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 58mm !important;
+            html, body {
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #ffffff !important;
                 color: #000000 !important;
-                z-index: 99999 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
             }
-            @page { size: 58mm auto; margin: 0mm; }
+
+            .fi-layout,
+            .fi-main,
+            .fi-page,
+            .fi-topbar,
+            .fi-sidebar,
+            .fi-header,
+            .fi-breadcrumbs,
+            .pos-layout,
+            .pos-modal-overlay,
+            header, nav, aside {
+                display: none !important;
+            }
+
+            #thermal-receipt-print-area,
+            .pos-print-only {
+                display: block !important;
+                visibility: visible !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                max-width: 58mm !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                z-index: 999999 !important;
+            }
+
+            #thermal-receipt-print-area *,
+            .pos-print-only * {
+                visibility: visible !important;
+            }
+
+            @page {
+                size: 58mm auto;
+                margin: 0mm;
+            }
         }
     </style>
 
-    {{-- Area Print Thermal Struk (Tersembunyi di layar normal, tampil saat window.print) --}}
-    <div id="thermal-receipt-print-area" style="display: none;">
+    {{-- Area Print Thermal Struk --}}
+    <div id="thermal-receipt-print-area" class="pos-print-only">
         @if ($lastOrder)
             @include('filament.pages.partials.receipt', ['order' => $lastOrder])
         @endif
@@ -1191,14 +1230,14 @@
                 </div>
 
                 {{-- Preview Struk Visual Thermal --}}
-                <div style="padding: 0.625rem; background: var(--pos-bg-subtle); border-radius: 0.75rem; border: 1.5px dashed var(--pos-border); text-align: left; overflow: hidden; margin-bottom: 1rem;">
+                <div id="pos-modal-receipt-preview" style="padding: 0.625rem; background: var(--pos-bg-subtle); border-radius: 0.75rem; border: 1.5px dashed var(--pos-border); text-align: left; overflow: hidden; margin-bottom: 1rem;">
                     @include('filament.pages.partials.receipt', ['order' => $lastOrder])
                 </div>
 
                 <div style="display: flex; gap: 0.5rem;">
                     <button
                         type="button"
-                        wire:click="printLastReceipt"
+                        onclick="printReceiptDirectly('pos-modal-receipt-preview')"
                         class="pos-btn-secondary"
                         style="flex: 1; padding: 0.625rem 0.5rem;"
                     >
@@ -1217,8 +1256,68 @@
         </div>
     @endif
 
-    {{-- Script Keyboard Shortcuts (F2: Cari Menu, F9: Bayar) & Trigger Otomatis window.print() --}}
+    {{-- Script Keyboard Shortcuts (F2: Cari Menu, F9: Bayar) & Trigger Otomatis Cetak Struk Thermal --}}
     <script>
+        function printReceiptDirectly(sourceId) {
+            const receiptSource = (sourceId ? document.getElementById(sourceId) : null) 
+                || document.getElementById('pos-modal-receipt-preview') 
+                || document.getElementById('thermal-receipt-print-area');
+                
+            if (!receiptSource || !receiptSource.innerHTML.trim()) {
+                window.print();
+                return;
+            }
+
+            let printIframe = document.getElementById('thermal-print-iframe');
+            if (!printIframe) {
+                printIframe = document.createElement('iframe');
+                printIframe.id = 'thermal-print-iframe';
+                printIframe.style.position = 'fixed';
+                printIframe.style.right = '0';
+                printIframe.style.bottom = '0';
+                printIframe.style.width = '0';
+                printIframe.style.height = '0';
+                printIframe.style.border = '0';
+                document.body.appendChild(printIframe);
+            }
+
+            const frameDoc = printIframe.contentDocument || printIframe.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Struk Pembayaran - Budhe Lamongan</title>
+                    <style>
+                        @page { size: 58mm auto; margin: 0; }
+                        html, body {
+                            margin: 0;
+                            padding: 2mm 1mm;
+                            width: 58mm;
+                            background: #ffffff;
+                            color: #000000;
+                            font-family: 'Courier New', Courier, monospace;
+                            box-sizing: border-box;
+                        }
+                        * {
+                            box-sizing: border-box;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${receiptSource.innerHTML}
+                </body>
+                </html>
+            `);
+            frameDoc.close();
+
+            setTimeout(() => {
+                printIframe.contentWindow.focus();
+                printIframe.contentWindow.print();
+            }, 250);
+        }
+
         document.addEventListener('keydown', (e) => {
             // F2: Fokus langsung ke kolom pencarian menu
             if (e.key === 'F2') {
@@ -1240,7 +1339,7 @@
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('print-receipt', () => {
                 setTimeout(() => {
-                    window.print();
+                    printReceiptDirectly('pos-modal-receipt-preview');
                 }, 300);
             });
         });
