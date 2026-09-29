@@ -64,16 +64,16 @@ class PerformanceAndNavigationTest extends TestCase
     }
 
     /**
-     * Test POS page contains F2 and F9 keyboard shortcut attributes and scripts.
+     * Test POS page renders clean mobile-first UI without desktop keyboard shortcut badges.
      */
-    public function test_pos_page_contains_f2_and_f9_hotkeys(): void
+    public function test_pos_page_has_clean_mobile_first_ui_without_keyboard_badges(): void
     {
         Livewire::actingAs($this->owner)
             ->test(PosPage::class)
             ->assertSuccessful()
             ->assertSee('pos-search-input')
-            ->assertSee('F2')
-            ->assertSee('F9');
+            ->assertDontSee('pos-search-kbd')
+            ->assertDontSee('pos-checkout-kbd');
     }
 
     /**

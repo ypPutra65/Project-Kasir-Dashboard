@@ -126,26 +126,6 @@
             box-shadow: 0 0 0 3px var(--pos-primary-light);
         }
 
-        .pos-search-kbd {
-            display: none;
-            position: absolute;
-            right: 0.75rem;
-            padding: 0.2rem 0.45rem;
-            font-size: 0.6875rem;
-            font-family: monospace;
-            font-weight: 700;
-            border-radius: 0.375rem;
-            background: var(--pos-bg-card);
-            color: var(--pos-text-secondary);
-            border: 1px solid var(--pos-border);
-            pointer-events: none;
-        }
-        @media (min-width: 640px) {
-            .pos-search-kbd {
-                display: block;
-            }
-        }
-
         .pos-cat-tabs {
             display: flex;
             align-items: center;
@@ -665,21 +645,6 @@
             transform: none;
             box-shadow: none;
         }
-        .pos-checkout-kbd {
-            display: none;
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            font-size: 0.6875rem;
-            font-family: monospace;
-            font-weight: 800;
-            padding: 0.15rem 0.35rem;
-            border-radius: 0.375rem;
-        }
-        @media (min-width: 640px) {
-            .pos-checkout-kbd {
-                display: inline-block;
-            }
-        }
 
         /* Floating Sticky Mobile Bottom Action Bar (<1024px) */
         .pos-mobile-bar {
@@ -1084,10 +1049,9 @@
                         id="pos-search-input"
                         type="text"
                         wire:model.live.debounce.300ms="search"
-                        placeholder="Ketik nama menu makanan / minuman (Cari cepat / F2)..."
+                        placeholder="Cari menu makanan / minuman..."
                         class="pos-search-input"
                     />
-                    <kbd class="pos-search-kbd">F2</kbd>
                 </div>
 
                 {{-- Category Filter Tabs --}}
@@ -1315,7 +1279,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                         <span>Proses Pembayaran</span>
-                        <kbd class="pos-checkout-kbd">F9</kbd>
                     </button>
                 </div>
             </div>
@@ -1608,24 +1571,6 @@
                 printIframe.contentWindow.print();
             }, 250);
         };
-
-        document.addEventListener('keydown', (e) => {
-            // F2: Fokus langsung ke kolom pencarian menu
-            if (e.key === 'F2') {
-                e.preventDefault();
-                const searchInput = document.getElementById('pos-search-input');
-                if (searchInput) {
-                    searchInput.focus();
-                    searchInput.select();
-                }
-            }
-
-            // F9: Membuka modal pembayaran
-            if (e.key === 'F9') {
-                e.preventDefault();
-                $wire.openPaymentModal();
-            }
-        });
 
         $wire.on('print-receipt', () => {
             setTimeout(() => {
